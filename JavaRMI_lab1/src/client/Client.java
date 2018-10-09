@@ -43,11 +43,9 @@ public class Client extends AbstractTestBooking {
 	 * CONSTRUCTOR *
 	 ***************/
 	
-	public Client(String scriptFile, String carRentalCompanyName) {
+	public Client(String scriptFile, String carRentalCompanyName) throws RemoteException, NotBoundException {
 		super(scriptFile);
-		// TODO Auto-generated method stub
-
-		throw new UnsupportedOperationException("TODO");
+		loadCarRentalCompany(carRentalCompanyName);
 	}
 
 	public void loadCarRentalCompany(String carRentalCompanyName) throws RemoteException, NotBoundException {

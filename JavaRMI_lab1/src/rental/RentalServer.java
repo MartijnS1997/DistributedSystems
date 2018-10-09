@@ -2,6 +2,8 @@ package rental;
 
 import interfaces.RemoteCarRentalCompany;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
