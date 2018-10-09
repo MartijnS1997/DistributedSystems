@@ -9,10 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import interfaces.RemoteCarRentalCompany;
-import rental.CarType;
-import rental.Quote;
-import rental.Reservation;
-import rental.ReservationConstraints;
+import rental.*;
 
 public class Client extends AbstractTestBooking {
 
@@ -130,8 +127,19 @@ public class Client extends AbstractTestBooking {
 	 */
 	@Override
 	protected List<Reservation> getReservationsByRenter(String clientName) throws Exception {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
+		List<Reservation> reservations = getRemoteCarRentalCompany().getYourReservations(clientName);
+		StringBuilder bldr = new StringBuilder();
+
+		for (Reservation res: reservations) {
+			bldr.append("CarType: " + res.getCarType() + "\n");
+			bldr.append("CarId: " + res.getCarId() + "\n");
+			bldr.append("Start date: " + res.getStartDate().toString() + "\n");
+			bldr.append("End date: " + res.getEndDate().toString() + "\n");
+			bldr.append("Price: " + res.getRentalPrice() + "\n");
+			bldr.append("_____________________ \n");
+			System.out.println(bldr.toString());
+		}
+		return reservations;
 	}
 
 	/**
@@ -146,7 +154,7 @@ public class Client extends AbstractTestBooking {
 	 */
 	@Override
 	protected int getNumberOfReservationsForCarType(String carType) throws Exception {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
+		// We are always the manager
+		return getRemoteCarRentalCompany().getCarTypeReservationCount(carType,true);
 	}
 }

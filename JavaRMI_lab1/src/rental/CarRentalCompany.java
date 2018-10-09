@@ -2,14 +2,8 @@ package rental;
 
 import interfaces.RemoteCarRentalCompany;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.rmi.RemoteException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -157,6 +151,34 @@ public class CarRentalCompany implements RemoteCarRentalCompany {
 		Reservation res = new Reservation(quote, car.getId());
 		car.addReservation(res);
 		return res;
+	}
+
+	@Override
+	public List<Reservation> getYourReservations(String clientName) throws RemoteException {
+		List<Reservation> yourReservations = new ArrayList<>();
+		for (Car car: cars) {
+			for (Reservation res: car.getAllReservations()) {
+				if (res.getCarRenter().equals(clientName)) {
+					yourReservations.add(res);
+				}
+			}
+		}
+		return yourReservations;
+	}
+
+	@Override
+	public int getCarTypeReservationCount(String carType, boolean IAmTheManager) throws IllegalAccessException {
+		if (! IAmTheManager) {
+			throw new IllegalAccessException("You are not the manager!");
+		}
+		int resCount = 0;
+		CarType type = getCarType(carType);
+		for (Car car: cars) {
+			if (car.getType().equals(type)) {
+				resCount += car.getAllReservations().size();
+			}
+		}
+		return resCount;
 	}
 
 	public void cancelReservation(Reservation res) {

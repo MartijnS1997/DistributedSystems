@@ -36,6 +36,7 @@ public class Car {
         return type;
     }
 
+
     /****************
      * RESERVATIONS *
      ****************/
@@ -59,5 +60,9 @@ public class Car {
     public void removeReservation(Reservation reservation) {
         // equals-method for Reservation is required!
         reservations.remove(reservation);
+    }
+
+    public List<Reservation> getAllReservations() {
+        return reservations;
     }
 }
