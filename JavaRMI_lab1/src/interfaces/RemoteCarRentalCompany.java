@@ -21,5 +21,5 @@ public interface RemoteCarRentalCompany extends Remote {
 
     List<Reservation> getYourReservations(String clientName) throws RemoteException;
 
-    int getCarTypeReservationCount(String carTypes, boolean IAmTheManager) throws IllegalAccessException;
+    int getCarTypeReservationCount(String carTypes, boolean IAmTheManager) throws IllegalAccessException, RemoteException;
 }

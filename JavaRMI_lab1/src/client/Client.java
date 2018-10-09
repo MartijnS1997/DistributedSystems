@@ -129,6 +129,7 @@ public class Client extends AbstractTestBooking {
 	protected List<Reservation> getReservationsByRenter(String clientName) throws Exception {
 		List<Reservation> reservations = getRemoteCarRentalCompany().getYourReservations(clientName);
 		StringBuilder bldr = new StringBuilder();
+		System.out.println("\n_____RESERVATIONS_____");
 
 		for (Reservation res: reservations) {
 			bldr.append("CarType: " + res.getCarType() + "\n");
