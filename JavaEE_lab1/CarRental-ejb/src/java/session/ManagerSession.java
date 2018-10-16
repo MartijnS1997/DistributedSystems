@@ -71,4 +71,13 @@ public class ManagerSession implements ManagerSessionRemote {
         return bestCustomer;
     }
 
+    @Override
+    public int getNumberOfReservationsBy(String clientName) {
+        int allReservations = 0;
+        for (String rentalCompany: RentalStore.getRentals().keySet()) {
+            allReservations += RentalStore.getRental(rentalCompany).getReservationsBy(clientName).size();
+        }
+        return allReservations;
+    }
+
 }

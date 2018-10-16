@@ -1,11 +1,13 @@
 package client;
 
 import com.sun.org.apache.xpath.internal.axes.SelfIteratorNoPredicate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.naming.InitialContext;
 import rental.Reservation;
+import rental.ReservationConstraints;
 import session.CarRentalSessionRemote;
 import session.ManagerSessionRemote;
 
@@ -50,28 +52,37 @@ public class Main extends AbstractTestAgency<CarRentalSessionRemote,ManagerSessi
 
     @Override
     protected void checkForAvailableCarTypes(CarRentalSessionRemote session, Date start, Date end) throws Exception {
-
+        for (String carTypeString: session.getAvailableCarTypes(start, end)) {
+            System.out.println(carTypeString);
+        }
     }
 
     @Override
     protected void addQuoteToSession(CarRentalSessionRemote session, String name, Date start, Date end, String carType, String region) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        session.createQuote(constraintFactory(start, end, carType, region));
     }
 
     @Override
     protected List<Reservation> confirmQuotes(CarRentalSessionRemote session, String name) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<Reservation>(session.confirmQuotes());
     }
 
     @Override
     protected int getNumberOfReservationsBy(ManagerSessionRemote ms, String clientName) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //Since no car rental company is given, we interprete this as all the reservations over all car rental companies. 
+        // (Because the assignment only specifies we may delete/ignore redundant paramaters, but doesn't mention 
+        // anything about adding parameters)
+        
+        return ms.getNumberOfReservationsBy(clientName);
     }
 
     @Override
     protected int getNumberOfReservationsForCarType(ManagerSessionRemote ms, String carRentalName, String carType) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return ms.getReservationCount(carType, carRentalName);
     }
 
+    private static ReservationConstraints constraintFactory(Date start, Date end, String carType, String region) {
+        return new ReservationConstraints(start, end, carType, region);
+    }
 
 }

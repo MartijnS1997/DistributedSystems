@@ -17,4 +17,6 @@ public interface ManagerSessionRemote {
     
     String getBestCustomer(String companyName);
     
+    int getNumberOfReservationsBy(String clientName);
+    
 }

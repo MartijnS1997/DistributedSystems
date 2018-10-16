@@ -18,3 +18,11 @@ hs_err_pid*
 /JavaEE_lab1/CarRental-client/nbproject/private/
 /JavaEE_lab1/CarRental-ejb/nbproject/private/
 /JavaEE_lab1/CarRental-lib/nbproject/private/
+/JavaEE_lab1/CarRental-lib/build/
+/JavaEE_lab1/CarRental-lib/dist/
+/JavaEE_lab1/CarRental/build/
+/JavaEE_lab1/CarRental-client/build/
+/JavaEE_lab1/CarRental-ejb/build/
+/JavaEE_lab1/CarRental-client/dist/
+/JavaEE_lab1/CarRental-ejb/dist/
+/JavaEE_lab1/CarRental/dist/

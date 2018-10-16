@@ -1,5 +1,6 @@
 package session;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -94,6 +95,18 @@ public class CarRentalSession implements CarRentalSessionRemote {
             CarRentalCompany rentalCompany = rentalCompanyMap.get(currentReservation.getRentalCompany());
             rentalCompany.cancelReservation(currentReservation);
         }
+    }
+
+    @Override
+    public Set<String> getAvailableCarTypes(Date start, Date end) {
+        Set<String> allCarTypes = new HashSet<String>();
+        for (String rentalCompanyName: getAllRentalCompanies()) {
+            CarRentalCompany rentalCompany = RentalStore.getRentals().get(rentalCompanyName);
+            for (CarType carType : rentalCompany.getAvailableCarTypes(start, end)) {
+                allCarTypes.add(carType.getName());
+            }
+        }
+        return allCarTypes;
     }
 
     
