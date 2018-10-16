@@ -13,7 +13,7 @@ public interface ManagerSessionRemote {
     
     Set<String> getAllCarTypes(String companyName);
     
-    int getReservationCount(String CarType, String companyName);
+    int getReservationCount(String carType, String companyName);
     
     String getBestCustomer(String companyName);
     

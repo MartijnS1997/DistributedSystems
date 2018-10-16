@@ -19,9 +19,9 @@ public class CarRentalCompany {
 	private String name;
 	private List<Car> cars;
 	private Map<String,CarType> carTypes;
-               private Set<String> customers;
-               // We tried 
-               // private Map<String,Integer> customerMap; // Value = number of reservations
+        private Set<String> customers = new HashSet<String>();
+        // We tried 
+        // private Map<String,Integer> customerMap; // Value = number of reservations
                
         
 
@@ -165,59 +165,59 @@ public class CarRentalCompany {
 	 ****************/
 
 	public Quote createQuote(ReservationConstraints constraints, String guest)
-			throws ReservationException {
-		logger.log(Level.INFO, "<{0}> Creating tentative reservation for {1} with constraints {2}", 
-                        new Object[]{name, guest, constraints.toString()});
-		
-		
-		if(!this.regions.contains(constraints.getRegion()) || !isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate()))
-			throw new ReservationException("<" + name
-				+ "> No cars available to satisfy the given constraints.");
-		
-		CarType type = getType(constraints.getCarType());
+                    throws ReservationException {
+        logger.log(Level.INFO, "<{0}> Creating tentative reservation for {1} with constraints {2}", 
+                new Object[]{name, guest, constraints.toString()});
 
-		double price = calculateRentalPrice(type.getRentalPricePerDay(),constraints.getStartDate(), constraints.getEndDate());
-		
-		return new Quote(guest, constraints.getStartDate(), constraints.getEndDate(), getName(), constraints.getCarType(), price);
+
+        if(!this.regions.contains(constraints.getRegion()) || !isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate()))
+                throw new ReservationException("<" + name
+                        + "> No cars available to satisfy the given constraints.");
+
+        CarType type = getType(constraints.getCarType());
+
+        double price = calculateRentalPrice(type.getRentalPricePerDay(),constraints.getStartDate(), constraints.getEndDate());
+
+        return new Quote(guest, constraints.getStartDate(), constraints.getEndDate(), getName(), constraints.getCarType(), price);
 	}
 
 	// Implementation can be subject to different pricing strategies
 	private double calculateRentalPrice(double rentalPricePerDay, Date start, Date end) {
-		return rentalPricePerDay * Math.ceil((end.getTime() - start.getTime())
-						/ (1000 * 60 * 60 * 24D));
+            return rentalPricePerDay * Math.ceil((end.getTime() - start.getTime())
+                                            / (1000 * 60 * 60 * 24D));
 	}
 
 	public Reservation confirmQuote(Quote quote) throws ReservationException {
-		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[]{name, quote.toString()});
-		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
-		if(availableCars.isEmpty())
-			throw new ReservationException("Reservation failed, all cars of type " + quote.getCarType()
-	                + " are unavailable from " + quote.getStartDate() + " to " + quote.getEndDate());
-		Car car = availableCars.get((int)(Math.random()*availableCars.size()));
-		
-		Reservation res = new Reservation(quote, car.getId());
-		car.addReservation(res);
-                             //incrementReservationCount(quote.getCarRenter());
-                             customers.add(quote.getCarRenter());
-		return res;
+            logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[]{name, quote.toString()});
+            List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
+            if(availableCars.isEmpty())
+                    throw new ReservationException("Reservation failed, all cars of type " + quote.getCarType()
+                    + " are unavailable from " + quote.getStartDate() + " to " + quote.getEndDate());
+            Car car = availableCars.get((int)(Math.random()*availableCars.size()));
+
+            Reservation res = new Reservation(quote, car.getId());
+            car.addReservation(res);
+                         //incrementReservationCount(quote.getCarRenter());
+            customers.add(quote.getCarRenter());
+            return res;
 	}
 
 	public void cancelReservation(Reservation res) {
-		logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
-		getCar(res.getCarId()).removeReservation(res);
-                             //decrementReservationCount(res.getCarRenter());
-                             //We don't remove a customer.
+            logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
+            getCar(res.getCarId()).removeReservation(res);
+                         //decrementReservationCount(res.getCarRenter());
+                         //We don't remove a customer.
 	}
 	
 	public Set<Reservation> getReservationsBy(String renter) {
-                        logger.log(Level.INFO, "<{0}> Retrieving reservations by {1}", new Object[]{name, renter});
-                        Set<Reservation> out = new HashSet<Reservation>();
-                        for(Car c : cars) {
-                            for(Reservation r : c.getAllReservations()) {
-                                if(r.getCarRenter().equals(renter))
-                                    out.add(r);
-                            }
-                        }
-                        return out;
+            logger.log(Level.INFO, "<{0}> Retrieving reservations by {1}", new Object[]{name, renter});
+            Set<Reservation> out = new HashSet<Reservation>();
+            for(Car c : cars) {
+                for(Reservation r : c.getAllReservations()) {
+                    if(r.getCarRenter().equals(renter))
+                        out.add(r);
                 }
+            }
+            return out;
+        }
 }

@@ -16,7 +16,7 @@ import rental.*;
 public class ManagerSession implements ManagerSessionRemote {
 
     /**
-     * Get all car types in String form so that CarType doesn't have to be serialised.
+     * Get all car types in String form so that CarType doesn't have to be serialized.
      * @param companyName
      * @return 
      * Note: We only return the CarType as a string (name). If we wanted to give the manager the ability to
@@ -35,20 +35,24 @@ public class ManagerSession implements ManagerSessionRemote {
     }
 
     /**
-     * Get the number of reservations for a given company
-     * @param CarType
+     * Get the number of reservations for a specific car type of a specific
+     * CarRentalCompany
+     * @param carType
      * @param companyName
      * @return 
      */
     @Override
-    public int getReservationCount(String CarType, String companyName) {
+    public int getReservationCount(String carType, String companyName) {
          CarRentalCompany rentalCompany = RentalStore.getRentals().get(companyName);
-         int accumulator = 0;
+         int reservationAccumulator = 0;
          for (Car car: rentalCompany.getCars()) {
-             for (Reservation reservation: car.getAllReservations())
-                 accumulator++;
+             if(car.getType().getName().equals(carType)){
+                 for (Reservation reservation: car.getAllReservations()){
+                    reservationAccumulator++;
+                 }
+             }
          }
-        return accumulator;
+        return reservationAccumulator;
     }
 
     /**

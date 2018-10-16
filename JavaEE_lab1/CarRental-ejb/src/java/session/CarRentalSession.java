@@ -47,10 +47,11 @@ public class CarRentalSession implements CarRentalSessionRemote {
             CarRentalCompany rentalCompany = RentalStore.getRentals().get(rentalCompanyName);
             try {
                 newQuote = rentalCompany.createQuote(constraints, getCurrentClient());
+                break;
             } catch(ReservationException resExc) {
                 // Do nothing
             }
-            break;
+            
         }
         if (newQuote == null) {
             throw new ReservationException(getCurrentClient());
@@ -75,7 +76,7 @@ public class CarRentalSession implements CarRentalSessionRemote {
         try {
             for (Quote currentQuote: getCurrentQuotes()) {
                 CarRentalCompany currentCompany = rentalCompanyMap.get(currentQuote.getRentalCompany());
-                Reservation currentReservation = currentCompany.confirmQuote(currentQuote);
+                reservations.add(currentCompany.confirmQuote(currentQuote));
             }
             // If one fails, cancel everything
         } catch (ReservationException resExc) {
