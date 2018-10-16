@@ -15,10 +15,15 @@ public class CarRentalCompany {
 
 	private static Logger logger = Logger.getLogger(CarRentalCompany.class.getName());
 	
-    private List<String> regions;
+               private List<String> regions;
 	private String name;
 	private List<Car> cars;
 	private Map<String,CarType> carTypes;
+               private Set<String> customers;
+               // We tried 
+               // private Map<String,Integer> customerMap; // Value = number of reservations
+               
+        
 
 	/***************
 	 * CONSTRUCTOR *
@@ -46,6 +51,44 @@ public class CarRentalCompany {
 	private void setName(String name) {
 		this.name = name;
 	}
+
+    public CarRentalCompany() {
+    }
+        
+ 	/*************
+	 * CUSTOMERS *
+	 *************/
+        
+//               private Map<String,Integer> getCustomerMap() {
+//                        return customerMap;
+//                }
+//               
+//               private int getReservationsCount(String customer) {
+//                   return getCustomerMap().get(customer);
+//               }
+//               
+//               private void incrementReservationCount(String customer) {
+//                   // If customer isn't yet present in a map
+//                   if (getCustomerMap().get(customer) == null) {
+//                       customerMap.put(customer, 1);
+//                   } else {
+//                       customerMap.put(customer, customerMap.get(customer)+1);
+//                   }
+//               }
+//               
+//               /**
+//                * Has no effect if the customer doesn't have a reservation yet.
+//                * @param customer 
+//                */
+//               private void decrementReservationCount(String customer) {
+//                   if (customerMap.get(customer) != null) {
+//                        customerMap.put(customer, customerMap.get(customer)-1);
+//                   }
+//               }
+    
+               public Set<String> getAllCustomers() {
+                   return customers;
+               }
 
 	/*************
 	 * CAR TYPES *
@@ -154,23 +197,27 @@ public class CarRentalCompany {
 		
 		Reservation res = new Reservation(quote, car.getId());
 		car.addReservation(res);
+                             //incrementReservationCount(quote.getCarRenter());
+                             customers.add(quote.getCarRenter());
 		return res;
 	}
 
 	public void cancelReservation(Reservation res) {
 		logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
 		getCar(res.getCarId()).removeReservation(res);
+                             //decrementReservationCount(res.getCarRenter());
+                             //We don't remove a customer.
 	}
 	
 	public Set<Reservation> getReservationsBy(String renter) {
-        logger.log(Level.INFO, "<{0}> Retrieving reservations by {1}", new Object[]{name, renter});
-        Set<Reservation> out = new HashSet<Reservation>();
-        for(Car c : cars) {
-            for(Reservation r : c.getAllReservations()) {
-                if(r.getCarRenter().equals(renter))
-                    out.add(r);
-            }
-        }
-        return out;
-    }
+                        logger.log(Level.INFO, "<{0}> Retrieving reservations by {1}", new Object[]{name, renter});
+                        Set<Reservation> out = new HashSet<Reservation>();
+                        for(Car c : cars) {
+                            for(Reservation r : c.getAllReservations()) {
+                                if(r.getCarRenter().equals(renter))
+                                    out.add(r);
+                            }
+                        }
+                        return out;
+                }
 }

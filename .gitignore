@@ -15,3 +15,6 @@ hs_err_pid*
 *.idea
 *.iml
 /JavaEE_lab1/CarRental/nbproject/private/
+/JavaEE_lab1/CarRental-client/nbproject/private/
+/JavaEE_lab1/CarRental-ejb/nbproject/private/
+/JavaEE_lab1/CarRental-lib/nbproject/private/
