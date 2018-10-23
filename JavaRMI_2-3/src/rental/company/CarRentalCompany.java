@@ -1,13 +1,13 @@
-package rental;
+package rental.company;
 
-import interfaces.RemoteCarRentalCompany;
+import interfaces.CarRentalCompanyRemote;
 
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CarRentalCompany implements RemoteCarRentalCompany {
+public class CarRentalCompany implements CarRentalCompanyRemote {
 
 	private static Logger logger = Logger.getLogger(CarRentalCompany.class.getName());
 	

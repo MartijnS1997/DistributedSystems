@@ -1,4 +1,4 @@
-package rental;
+package rental.company;
 
 import java.io.Serializable;
 
