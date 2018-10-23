@@ -16,7 +16,7 @@
 	   The third parameter is filename for the final zip.	   
     ******************************************************** -->
   <property name="main.client" value="client.Client" />
-  <property name="main.server" value="rental.RentalServer" />
+  <property name="main.server" value="rental.company.RentalServer" />
   <property name="zip.filename" value="claradesmet_martijnsauwens_rmi1" />
   <!--
     ********************************************************

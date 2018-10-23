@@ -8,8 +8,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import interfaces.RemoteCarRentalCompany;
-import rental.*;
+import interfaces.CarRentalCompanyRemote;
+import rental.company.CarType;
+import rental.company.Quote;
+import rental.company.Reservation;
+import rental.company.ReservationConstraints;
 
 public class Client extends AbstractTestBooking {
 
@@ -17,9 +20,9 @@ public class Client extends AbstractTestBooking {
 	 * PRIVATES *
 	 ************/
 
-	private RemoteCarRentalCompany rentalCompany;
+	private CarRentalCompanyRemote rentalCompany;
 
-	private RemoteCarRentalCompany getRemoteCarRentalCompany() {
+	private CarRentalCompanyRemote getRemoteCarRentalCompany() {
 		return rentalCompany;
 	}
 
@@ -48,7 +51,7 @@ public class Client extends AbstractTestBooking {
 	public void loadCarRentalCompany(String carRentalCompanyName) throws RemoteException, NotBoundException {
 		System.setSecurityManager(null);
 		Registry registry = LocateRegistry.getRegistry();
-		RemoteCarRentalCompany stub = (RemoteCarRentalCompany) registry.lookup(carRentalCompanyName);
+		CarRentalCompanyRemote stub = (CarRentalCompanyRemote) registry.lookup(carRentalCompanyName);
 		this.rentalCompany = stub;
 	}
 
@@ -95,7 +98,7 @@ public class Client extends AbstractTestBooking {
 	 */
 	@Override
 	protected Quote createQuote(String clientName, Date start, Date end,
-			String carType, String region) throws Exception {
+                                String carType, String region) throws Exception {
 		ReservationConstraints reservationConstraints = new ReservationConstraints(start,end,carType,region);
 		return getRemoteCarRentalCompany().createQuote(reservationConstraints, clientName);
 	}

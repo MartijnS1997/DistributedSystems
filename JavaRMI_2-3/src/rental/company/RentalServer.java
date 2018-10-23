@@ -1,9 +1,7 @@
-package rental;
+package rental.company;
 
-import interfaces.RemoteCarRentalCompany;
+import interfaces.CarRentalCompanyRemote;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -23,12 +21,12 @@ public class RentalServer {
 			NumberFormatException, IOException {
 		System.setSecurityManager(null);
 		CrcData data  = loadData("hertz.csv");
-		RemoteCarRentalCompany rentalCompany = new CarRentalCompany(data.name, data.regions, data.cars);
+		CarRentalCompanyRemote rentalCompany = new CarRentalCompany(data.name, data.regions, data.cars);
 
 		try {
-			RemoteCarRentalCompany stub = (RemoteCarRentalCompany) UnicastRemoteObject.exportObject(rentalCompany, 0);
+			CarRentalCompanyRemote stub = (CarRentalCompanyRemote) UnicastRemoteObject.exportObject(rentalCompany, 0);
 			Registry registry = LocateRegistry.getRegistry();
-			registry.rebind(RemoteCarRentalCompany.REMOTE_COMPANY_NAME, stub);
+			registry.rebind(CarRentalCompanyRemote.REMOTE_COMPANY_NAME, stub);
 		} catch (RemoteException remoteExc) {
 			System.err.println("Exception: " + remoteExc.toString());
 			remoteExc.printStackTrace();

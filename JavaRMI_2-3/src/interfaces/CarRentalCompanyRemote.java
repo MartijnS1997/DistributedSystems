@@ -1,6 +1,6 @@
 package interfaces;
 
-import rental.*;
+import rental.company.*;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public interface RemoteCarRentalCompany extends Remote {
+public interface CarRentalCompanyRemote extends Remote {
 
     static final String REMOTE_COMPANY_NAME = "Hertz";
 
