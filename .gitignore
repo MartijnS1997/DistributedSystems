@@ -14,6 +14,8 @@ hs_err_pid*
 #IDEA
 *.idea
 *.iml
+
+#netbeans
 /JavaEE_lab1/CarRental/nbproject/private/
 /JavaEE_lab1/CarRental-client/nbproject/private/
 /JavaEE_lab1/CarRental-ejb/nbproject/private/
@@ -38,3 +40,6 @@ hs_err_pid*
 /JavaEE_2-3/CarRental-ejb/dist/
 /JavaEE_2-3/CarRental-lib/dist/
 /JavaEE_2-3/CarRental-lib/build/
+
+#visual paradigm
+*vpp.lck

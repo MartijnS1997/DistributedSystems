@@ -18,7 +18,7 @@ public class CarRentalAgency {
     private Map<String, CarRentalCompanyRemote> getRegisteredCompanies() {
         return registeredCompanies;
     }
-    
+
     /**
      * Constructors
      */
