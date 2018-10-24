@@ -11,6 +11,22 @@ public class CarRentalAgency {
 
     private Map<String,CarRentalCompanyRemote> registeredCompanies;
 
+    /**
+     * Getters and setters
+     */
+
+    private Map<String, CarRentalCompanyRemote> getRegisteredCompanies() {
+        return registeredCompanies;
+    }
+    
+    /**
+     * Constructors
+     */
+
+    CarRentalAgency(){
+
+    }
+
     void registerCompany(String companyName) {
         //TODO getCompany from registry
     }

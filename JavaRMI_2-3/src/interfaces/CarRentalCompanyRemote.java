@@ -10,8 +10,12 @@ import java.util.Set;
 
 
 public interface CarRentalCompanyRemote extends Remote {
-
-    static final String REMOTE_COMPANY_NAME = "Hertz";
+    /**
+     * The name of the company
+     * @return the name of the company. Used to register the remote car rental company
+     * @throws RemoteException
+     */
+    String getName() throws RemoteException;
 
     Set<CarType> getAvailableCarTypes(Date start, Date end) throws RemoteException;
 
