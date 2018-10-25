@@ -16,6 +16,8 @@ import rental.company.ReservationConstraints;
 
 public class Client extends AbstractTestBooking {
 
+	//TODO legacy code, create a wrapper to call the manager and the rental client depending on command line args
+
 	/************
 	 * PRIVATES *
 	 ************/
@@ -99,7 +101,7 @@ public class Client extends AbstractTestBooking {
 	@Override
 	protected Quote createQuote(String clientName, Date start, Date end,
                                 String carType, String region) throws Exception {
-		ReservationConstraints reservationConstraints = new ReservationConstraints(start,end,carType,region);
+		ReservationConstraints reservationConstraints = new ReservationConstraints(start,end,carType,region, null);
 		return getRemoteCarRentalCompany().createQuote(reservationConstraints, clientName);
 	}
 

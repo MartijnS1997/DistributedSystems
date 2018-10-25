@@ -4,6 +4,7 @@ import rental.company.*;
 
 import java.rmi.Remote;
 import java.util.Collection;
+import java.util.Date;
 
 public interface RentalSessionRemote extends Remote {
 
@@ -31,33 +32,23 @@ public interface RentalSessionRemote extends Remote {
 
     /**
      * getter for the cheapest car type
+     * @param start start date for the availability
+     * @param end end date for the availability
+     * @param region the region to look in for the cheapest car type
      * @return the car type that is the cheapest
-     * note: returns the cartype instead of the string such that the customer can inspect the properties of the car
+     * note: returns the carType instead of the string such that the customer can inspect the properties of the car
      */
-    CarType getCheapestCarType();
+    CarType getCheapestCarType(Date start, Date end , String region);
 
     /**
      * Getter for all the available car types
      * @return a collection of all the car types that are available
      */
-    Collection<CarType> getAvailableCarTypes();
+    Collection<CarType> getAvailableCarTypes(Date start, Date end, String companyName);
 
     /**
      * Getter for all the rental companies that are managed by the agency
      * @return a collection of the company names provided by the rental agency
      */
     Collection<String> getAllCompanies();
-
-    /**
-     * Setter for the company currently inspected by the session
-     * @param companyName the name of the company to inspect
-     */
-    void setCurrentRentalCompany(String companyName);
-
-    /**
-     * getter for the name of the company currently managed
-     * @return the company currently inspected by the client
-     */
-    String getCurrentRentalCompany();
-
 }
