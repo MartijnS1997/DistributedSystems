@@ -6,6 +6,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -25,5 +26,8 @@ public interface CarRentalCompanyRemote extends Remote {
 
     List<Reservation> getYourReservations(String clientName) throws RemoteException;
 
-    int getCarTypeReservationCount(String carTypes, boolean IAmTheManager) throws IllegalAccessException, RemoteException;
+    int getCarTypeReservationCount(String carTypes) throws RemoteException;
+
+    Map<String, Long> getReservationsByCustomer() throws RemoteException;
+
 }

@@ -28,5 +28,5 @@ public interface SessionManagerRemote extends Remote {
      * TODO check if it is feasable to set the currentSession as the argument, since now other sessions
      * can close different sessions than themselves
      */
-    void closeSession(String sessionId) throws RemoteException;
+    void closeSession(long sessionId) throws RemoteException;
 }

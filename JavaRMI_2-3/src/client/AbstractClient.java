@@ -4,6 +4,9 @@ import interfaces.SessionManagerRemote;
 
 import java.rmi.RemoteException;
 
+/**
+ * Interface used to test our own version
+ */
 public abstract class AbstractClient {
 
 

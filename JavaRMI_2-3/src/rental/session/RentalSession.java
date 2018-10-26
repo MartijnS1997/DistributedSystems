@@ -4,6 +4,7 @@ import interfaces.RentalSessionRemote;
 import rental.company.*;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 
 public class RentalSession extends Session implements RentalSessionRemote {
@@ -33,8 +34,9 @@ public class RentalSession extends Session implements RentalSessionRemote {
      * constructor
      */
 
-    protected RentalSession(CarRentalAgency agency, String sessionid, SessionManager manager) {
-        super(agency, sessionid, manager);
+    protected RentalSession( String clientName, CarRentalAgency agency, long sessionId, SessionManager manager) {
+        super(agency, sessionId, manager);
+        setClientName(clientName);
     }
 
     @Override
@@ -53,12 +55,12 @@ public class RentalSession extends Session implements RentalSessionRemote {
     }
 
     @Override
-    public CarType getCheapestCarType() {
-        return null;
+    public CarType getCheapestCarType(Date start, Date end, String region) {
+        return new CarType("hello", 1, 2.5f, 656.0, false);
     }
 
     @Override
-    public Collection<CarType> getAvailableCarTypes() {
+    public Collection<CarType> getAvailableCarTypes(Date start, Date end, String companyName) {
         return null;
     }
 
@@ -67,13 +69,4 @@ public class RentalSession extends Session implements RentalSessionRemote {
         return null;
     }
 
-    @Override
-    public void setCurrentRentalCompany(String companyName) {
-        currentRentalCompany = companyName;
-    }
-
-    @Override
-    public String getCurrentRentalCompany() {
-        return currentRentalCompany;
-    }
 }

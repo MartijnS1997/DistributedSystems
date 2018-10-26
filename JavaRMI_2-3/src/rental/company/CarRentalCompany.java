@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class CarRentalCompany implements CarRentalCompanyRemote {
 
@@ -15,6 +16,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	private String name;
 	private List<Car> cars;
 	private Map<String,CarType> carTypes = new HashMap<String, CarType>();
+	private Set<String> customers = new HashSet<>();
 
 	/***************
 	 * CONSTRUCTOR *
@@ -113,9 +115,18 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		return availableCars;
 	}
 
-	/****************
+
+
+    /****************
 	 * RESERVATIONS *
 	 ****************/
+
+    /**
+     * getter for the set of customers. This set is used to get the best all time customer
+     */
+    private Set<String> getCustomers() {
+        return customers;
+    }
 
 	public Quote createQuote(ReservationConstraints constraints, String client)
 			throws ReservationException {
@@ -150,6 +161,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		
 		Reservation res = new Reservation(quote, car.getId());
 		car.addReservation(res);
+		getCustomers().add(quote.getCarRenter()); //save the customer of this purchase
 		return res;
 	}
 
@@ -167,10 +179,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	}
 
 	@Override
-	public int getCarTypeReservationCount(String carType, boolean IAmTheManager) throws IllegalAccessException {
-		if (! IAmTheManager) {
-			throw new IllegalAccessException("You are not the manager!");
-		}
+	public int getCarTypeReservationCount(String carType) {
 		int resCount = 0;
 		CarType type = getCarType(carType);
 		for (Car car: cars) {
@@ -181,7 +190,30 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		return resCount;
 	}
 
-	public void cancelReservation(Reservation res) {
+	@Override
+    public Map<String, Long> getReservationsByCustomer() {
+        Map<String, Long> customerMap = new HashMap<>();
+        for (String customer : getCustomers()) {
+            long currentCount = 0;
+            for (Car car : cars) {
+                currentCount +=  car.getAllReservations().stream().
+                        filter(reservation -> reservation.getCarRenter().equals(customer)).count();
+            }
+
+            customerMap.put(customer, currentCount);
+        }
+
+        return customerMap;
+    }
+
+//  we could have replaced the inner loop with the following lambda...
+//    long reservationCount = cars.stream().
+//                    map(car->car.getAllReservations().stream().
+//                    filter(reservation -> reservation.getCarRenter().equals(customer)).count())
+//                    .reduce(0L, Long::sum);
+
+
+    public void cancelReservation(Reservation res) {
 		logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
 		getCar(res.getCarId()).removeReservation(res);
 	}

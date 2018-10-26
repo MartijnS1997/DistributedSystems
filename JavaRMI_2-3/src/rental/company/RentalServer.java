@@ -26,7 +26,7 @@ public class RentalServer {
 		try {
 			CarRentalCompanyRemote stub = (CarRentalCompanyRemote) UnicastRemoteObject.exportObject(rentalCompany, 0);
 			Registry registry = LocateRegistry.getRegistry();
-			registry.rebind(CarRentalCompanyRemote.REMOTE_COMPANY_NAME, stub);
+			registry.rebind(null, stub);
 		} catch (RemoteException remoteExc) {
 			System.err.println("Exception: " + remoteExc.toString());
 			remoteExc.printStackTrace();

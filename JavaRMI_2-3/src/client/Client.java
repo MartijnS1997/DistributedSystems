@@ -8,12 +8,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import client.provided.AbstractTestBooking;
 import interfaces.CarRentalCompanyRemote;
 import rental.company.CarType;
 import rental.company.Quote;
 import rental.company.Reservation;
 import rental.company.ReservationConstraints;
 
+@Deprecated
 public class Client extends AbstractTestBooking {
 
 	//TODO legacy code, create a wrapper to call the manager and the rental client depending on command line args
@@ -161,6 +163,6 @@ public class Client extends AbstractTestBooking {
 	@Override
 	protected int getNumberOfReservationsForCarType(String carType) throws Exception {
 		// We are always the manager
-		return getRemoteCarRentalCompany().getCarTypeReservationCount(carType,true);
+		return getRemoteCarRentalCompany().getCarTypeReservationCount(carType);
 	}
 }

@@ -1,8 +1,8 @@
 package interfaces;
 
 import rental.company.CarType;
+import util.Pair;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Date;
@@ -11,7 +11,7 @@ import java.util.Date;
  * The manager session is responsible for managing the activities
  * for a manager. This is the 'bean' used for the manager
  */
-public interface ManagerSessionRemote extends Remote {
+public interface ManagerSessionRemote extends SessionRemote {
 
 
     /**
@@ -30,6 +30,13 @@ public interface ManagerSessionRemote extends Remote {
      * @return a collection of all registered companies
      */
     Collection<CarRentalCompanyRemote> getRegisteredCompanies() throws RemoteException;
+
+    /**
+     * @return a collection of all the companies and their car types
+     * @throws RemoteException if something went wrong
+     * TODO: Check if this method is really needed... seems a bit "overkill"
+     */
+    Collection<Pair<String, Collection<CarType>>> getCarTypesPerCompany() throws RemoteException;
 
     /**
      * counts all the reservations for a specific car type

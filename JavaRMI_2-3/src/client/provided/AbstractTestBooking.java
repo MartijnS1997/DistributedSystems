@@ -1,4 +1,4 @@
-package client;
+package client.provided;
 
 import java.text.ParseException;
 import java.util.Date;
