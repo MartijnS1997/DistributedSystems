@@ -3,12 +3,9 @@ package rental.session;
 import interfaces.CarRentalCompanyRemote;
 import interfaces.ManagerSessionRemote;
 import rental.company.CarRentalAgency;
-import rental.company.CarRentalCompany;
 import rental.company.CarType;
 import util.Pair;
 
-import java.beans.Customizer;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Date;
@@ -39,8 +36,8 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     }
 
     @Override
-    public Collection<CarRentalCompanyRemote> getRegisteredCompanies() throws RemoteException {
-        return getRentalAgency().getAllRegisterdCompanies();
+    public Collection<String> getRegisteredCompanies() throws RemoteException {
+        return getRentalAgency().getAllCompanyNames();
     }
 
     @Override
@@ -62,22 +59,29 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     }
 
     @Override
-    public CarType mostWanted(String carRentalCompany, Date calendarYear) throws  RemoteException {
-        //TODO: implement the most wanted method
+    public CarType mostWanted(String companyName, int calendarYear) throws  RemoteException {
+        //TODO: do something in case the company we looked up does not exist? Nullptr exception
         // Same as getCarTypesPerCompany
-        for (CarRentalCompanyRemote carRentalCompanyRemote : getRegisteredCompanies()) {
-
-        }
-        return null;
+        return getRentalAgency().lookupRentalCompany(companyName).mostWanted(calendarYear);
     }
 
     @Override
-    public String bestCustomer(CarRentalCompanyRemote company) throws RemoteException{
-        //TODO This has to return a Set<String> of best customers
-        Map<String, Long> reservationsByCustomers = getAllReservationsPerCustomer();
-        return determineBestCustomer(reservationsByCustomers);
+    public String bestCustomer(String companyName) throws RemoteException {
+        CarRentalCompanyRemote  company = getRentalAgency().lookupRentalCompany(companyName);
 
+        long mostReservations = 0;
+        String bestCustomerName = "";
 
+        Map<String, Long> reservationCountMap = company.getReservationCountPerCustomer();
+        for(String customer:reservationCountMap.keySet()){
+            long currentCount = reservationCountMap.get(customer);
+            if(currentCount > mostReservations){
+                mostReservations = currentCount;
+                bestCustomerName = customer;
+            }
+        }
+
+        return bestCustomerName;
     }
 
     @Override
@@ -93,38 +97,35 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
         for(String company: allCompanies){
             CarRentalCompanyRemote currentCompany = getRentalAgency().lookupRentalCompany(company);
             //sumCustomerReservations(reservationsPerCustomer, currentCompany);
-            currentCompany.getReservationsByCustomer().forEach((customer, reservations) -> reservationsPerCustomer.merge(customer, reservations, Long::sum));
+            currentCompany.getReservationCountPerCustomer().forEach((customer, reservations) -> reservationsPerCustomer.merge(customer, reservations, Long::sum));
         }
 
         return reservationsPerCustomer;
     }
 
 
-// replaced by the merge lambda
-//    private void sumCustomerReservations(Map<String, Long> currentSumMap, CarRentalCompanyRemote companyToAdd){
-//        Map<String, Long> mapToAdd = companyToAdd.getReservationsByCustomer();
-//        for(String customerToAdd: mapToAdd.keySet()) {
-//            Long currentTotal = currentSumMap.get(customerToAdd);
-//            if (currentTotal == null) {
-//                //in case there is no entry yet, add the total
-//                currentSumMap.put(customerToAdd, mapToAdd.get(customerToAdd));
-//            } else {
-//                currentSumMap.put(customerToAdd, currentTotal + mapToAdd.get(customerToAdd));
+//    @Override
+//    public String bestCustomer(CarRentalCompanyRemote company) throws RemoteException{
+//        //TODO This has to return a Set<String> of best customers
+//        Map<String, Long> reservationsByCustomers = getAllReservationsPerCustomer();
+//        return determineBestCustomer(reservationsByCustomers);
+//
+//
+//    }
+//
+//
+//
+//    private String determineBestCustomer(Map<String, Long> customerReservations){
+//        String bestCustomer = "";
+//        long bestCount = 0;
+//        for(String currentCustomer: customerReservations.keySet()){
+//            long currentCount = customerReservations.get(currentCustomer);
+//            if(currentCount > bestCount){
+//                bestCount = currentCount;
+//                bestCustomer = currentCustomer;
 //            }
 //        }
+//
+//        return bestCustomer;
 //    }
-
-    private String determineBestCustomer(Map<String, Long> customerReservations){
-        String bestCustomer = "";
-        long bestCount = 0;
-        for(String currentCustomer: customerReservations.keySet()){
-            long currentCount = customerReservations.get(currentCustomer);
-            if(currentCount > bestCount){
-                bestCount = currentCount;
-                bestCustomer = currentCustomer;
-            }
-        }
-
-        return bestCustomer;
-    }
 }

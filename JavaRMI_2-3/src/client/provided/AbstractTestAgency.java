@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-
 /**
  * 
  * This class supports the following script commands
@@ -126,7 +125,7 @@ public abstract class AbstractTestAgency<ReservationSession, ManagerSession> ext
         super(scriptFile);
     }
 
-	protected void processLine(String name, String cmd, List<Character> flags, StringTokenizer scriptLineTokens) throws ApplicationException {
+	protected void processLine(String name, String cmd, List<Character> flags, StringTokenizer scriptLineTokens) throws AbstractTesting.ApplicationException {
 		//
 		// Pre processing command 
 		//

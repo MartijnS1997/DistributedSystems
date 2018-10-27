@@ -22,9 +22,8 @@ import java.util.*;
  * --> each rental company should get a different server in principle
  */
 public class CarRentalCompanyServer {
-    public static void main(String[] args) throws ReservationException, IOException {
+    public static void init( Collection<CarRentalCompany> companies) throws ReservationException, IOException {
         System.setSecurityManager(null);
-        Collection<CarRentalCompany> companies = createCompanies();
 
         try{
             Registry registry = LocateRegistry.getRegistry();
@@ -44,7 +43,7 @@ public class CarRentalCompanyServer {
         }
     }
 
-    private static Collection<CarRentalCompany> createCompanies() throws IOException, ReservationException {
+    public static Collection<CarRentalCompany> createCompanies() throws IOException, ReservationException {
         CrcData hertzData = loadData(HERTZ);
         CrcData dockxData = loadData(DOCKX);
         CarRentalCompany hertz = new CarRentalCompany(hertzData.name, hertzData.regions, hertzData.cars);

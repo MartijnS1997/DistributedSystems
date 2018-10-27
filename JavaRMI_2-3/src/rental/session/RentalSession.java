@@ -5,9 +5,7 @@ import interfaces.CarRentalCompanyRemote;
 import rental.company.*;
 
 import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 public class RentalSession extends Session implements RentalSessionRemote {
 
@@ -26,10 +24,6 @@ public class RentalSession extends Session implements RentalSessionRemote {
      */
     private String clientName;
 
-    /**
-     * The rental company where the client is currently making quotes.
-     */
-    private String currentRentalCompany;
 
     /**
      * Getters and setters that are not part of interface
@@ -52,7 +46,7 @@ public class RentalSession extends Session implements RentalSessionRemote {
 
     @Override
     public Quote createQuote(ReservationConstraints constraints) throws ReservationException, RemoteException {
-        CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(currentRentalCompany);
+        CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(constraints.getCompanyName());
         return carRentalCompany.createQuote(constraints,getClientName());
     }
 
@@ -62,18 +56,33 @@ public class RentalSession extends Session implements RentalSessionRemote {
     }
 
     @Override
-    public Collection<Reservation> confirmQuotes() throws ReservationException, RemoteException {
+    public Collection<Reservation> confirmQuotes() throws RemoteException {
         //TODO If exception thrown, cancel all reservations.
+        List<Reservation> reservations = new LinkedList<>(); //linked list for fast addition of new reservations
         for (Quote quote : getCurrentQuotes()) {
             String company = quote.getRentalCompany();
-            Reservation reservation = getRentalAgency().lookupRentalCompany(company).confirmQuote(quote);
+            try{
+                Reservation reservation = getRentalAgency().lookupRentalCompany(company).confirmQuote(quote);
+                reservations.add(reservation);
+            }catch(ReservationException e){
+                reservations.forEach(reservation -> {
+                    try {
+                        getRentalAgency().lookupRentalCompany(reservation.getRentalCompany()).cancelReservation(reservation);
+                    } catch (RemoteException e1) {
+                        e1.printStackTrace();
+                        //let the remote exception fly
+                    }
+                });
+            }
         }
-        return null;
+        return reservations;
     }
 
     @Override
     public CarType getCheapestCarType(Date start, Date end, String region) {
         //TODO this is a dummy implementation i suppose? :p
+        //TODO jup, was to test some stuff
+        //TODO implement
         return new CarType("hello", 1, 2.5f, 656.0, false);
     }
 

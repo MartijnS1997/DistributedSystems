@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+
 /**
  * This class forwards all commands starting with B to AbstractTestAgency and 
  * supports the following script commands

@@ -63,18 +63,18 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	 * CAR TYPES *
 	 *************/
 
-	public Collection<CarType> getAllCarTypes() {
+	public synchronized Collection<CarType> getAllCarTypes() {
 		return carTypes.values();
 	}
 	
-	public CarType getCarType(String carTypeName) {
+	public synchronized CarType getCarType(String carTypeName) {
 		if(carTypes.containsKey(carTypeName))
 			return carTypes.get(carTypeName);
 		throw new IllegalArgumentException("<" + carTypeName + "> No car type of name " + carTypeName);
 	}
 	
 	// mark
-	public boolean isAvailable(String carTypeName, Date start, Date end) {
+	public synchronized boolean isAvailable(String carTypeName, Date start, Date end) {
 		logger.log(Level.INFO, "<{0}> Checking availability for car type {1}", new Object[]{name, carTypeName});
 		if(carTypes.containsKey(carTypeName)) {
 			return getAvailableCarTypes(start, end).contains(carTypes.get(carTypeName));
@@ -82,8 +82,9 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 			throw new IllegalArgumentException("<" + carTypeName + "> No car type of name " + carTypeName);
 		}
 	}
-	
-	public Set<CarType> getAvailableCarTypes(Date start, Date end) {
+
+	@Override
+	public synchronized Set<CarType> getAvailableCarTypes(Date start, Date end) {
 		Set<CarType> availableCarTypes = new HashSet<CarType>();
 		for (Car car : cars) {
 			if (car.isAvailable(start, end)) {
@@ -105,7 +106,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		throw new IllegalArgumentException("<" + name + "> No car with uid " + uid);
 	}
 	
-	private List<Car> getAvailableCars(String carType, Date start, Date end) {
+	 private List<Car> getAvailableCars(String carType, Date start, Date end) {
 		List<Car> availableCars = new LinkedList<Car>();
 		for (Car car : cars) {
 			if (car.getType().getName().equals(carType) && car.isAvailable(start, end)) {
@@ -128,7 +129,8 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
         return customers;
     }
 
-	public Quote createQuote(ReservationConstraints constraints, String client)
+    @Override
+	public synchronized Quote createQuote(ReservationConstraints constraints, String client)
 			throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Creating tentative reservation for {1} with constraints {2}", 
                         new Object[]{name, client, constraints.toString()});
@@ -150,8 +152,8 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		return rentalPricePerDay * Math.ceil((end.getTime() - start.getTime())
 						/ (1000 * 60 * 60 * 24D));
 	}
-
-	public Reservation confirmQuote(Quote quote) throws ReservationException {
+	 @Override
+	 public synchronized Reservation confirmQuote(Quote quote) throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[]{name, quote.toString()});
 		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
 		if(availableCars.isEmpty())
@@ -166,7 +168,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	}
 
 	@Override
-	public List<Reservation> getYourReservations(String clientName) throws RemoteException {
+	public synchronized List<Reservation> getYourReservations(String clientName) throws RemoteException {
 		List<Reservation> yourReservations = new ArrayList<>();
 		for (Car car: cars) {
 			for (Reservation res: car.getAllReservations()) {
@@ -179,7 +181,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	}
 
 	@Override
-	public int getCarTypeReservationCount(String carType) {
+	public synchronized int getCarTypeReservationCount(String carType) {
 		int resCount = 0;
 		CarType type = getCarType(carType);
 		for (Car car: cars) {
@@ -191,7 +193,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	}
 
 	@Override
-    public Map<String, Long> getReservationsByCustomer() {
+    public synchronized Map<String, Long> getReservationCountPerCustomer() {
         Map<String, Long> customerMap = new HashMap<>();
         for (String customer : getCustomers()) {
             long currentCount = 0;
@@ -212,14 +214,14 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 //                    filter(reservation -> reservation.getCarRenter().equals(customer)).count())
 //                    .reduce(0L, Long::sum);
 
-
-    public void cancelReservation(Reservation res) {
+    @Override
+    public synchronized void cancelReservation(Reservation res) {
 		logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
 		getCar(res.getCarId()).removeReservation(res);
 	}
 	
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		return String.format("<%s> CRC is active in regions %s and serving with %d car types", name, listToString(regions), carTypes.size());
 	}
 	
@@ -234,5 +236,36 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		}
 		return out.toString();
 	}
-	
+
+    @Override
+    public synchronized CarType mostWanted(int year) throws RemoteException {
+        //drop the rest of the date
+        CarType mostWanted = null;
+        long mostReservations = 0;
+        for(CarType carType: carTypes.values()){
+            //get all the cars of the particular type
+            Collection<Car> carsOfType = cars.stream().filter(car-> car.getType().equals(carType)).collect(Collectors.toList());
+            long currentReservations = getNumberOfReservationsInYear(carsOfType, year);
+            if(currentReservations > mostReservations){
+                mostWanted = carType;
+                mostReservations = currentReservations;
+            }
+        }
+
+        return  mostWanted;
+    }
+
+    /**
+     * counts the number of reservations for a list of cars in a given year
+     * @param cars the cars to count the reservations for
+     * @param year the year for which the reservations are counted
+     * @return the number  of reservations for that year
+     */
+    private long getNumberOfReservationsInYear(Collection<Car> cars, int year){
+        int total = 0;
+        for(Car car: cars){
+            total += car.getAllReservations().stream().filter(reservation -> reservation.getStartDate().getYear() == year).count();
+        }
+        return total;
+    }
 }

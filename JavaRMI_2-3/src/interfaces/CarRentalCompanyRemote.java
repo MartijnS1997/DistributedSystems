@@ -41,6 +41,7 @@ public interface CarRentalCompanyRemote extends Remote {
      * Confirm a quote
      * @param quote the quote to be confirmed
      * @return the reservation that has been made
+     * @implNote Should happen atomically!
      * @throws RemoteException
      * @throws ReservationException
      */
@@ -67,6 +68,21 @@ public interface CarRentalCompanyRemote extends Remote {
      * @return a map of (client, nb_res)
      * @throws RemoteException
      */
-    Map<String, Long> getReservationsByCustomer() throws RemoteException;
+    Map<String, Long> getReservationCountPerCustomer() throws RemoteException;
+
+    /**
+     * Getter for the  most wanted car type in the specified date
+     * @param calendarYear integer representing the year in which to look for reservations
+     * @return the most wanted car type
+     * @throws RemoteException
+     */
+    CarType mostWanted(int calendarYear) throws  RemoteException;
+
+    /**
+     * Cancels the provided reservation
+     * @param reservation the reservation to be cancelled
+     * @throws RemoteException
+     */
+    void cancelReservation(Reservation reservation) throws RemoteException;
 
 }

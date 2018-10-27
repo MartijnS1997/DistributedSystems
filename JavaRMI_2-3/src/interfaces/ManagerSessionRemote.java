@@ -1,6 +1,5 @@
 package interfaces;
 
-import rental.company.CarRentalCompany;
 import rental.company.CarType;
 import util.Pair;
 
@@ -28,9 +27,11 @@ public interface ManagerSessionRemote extends SessionRemote {
 
     /**
      * getter for all the registered car rental companies in the car rental agency
-     * @return a collection of all registered companies
+     * @return a collection of all registered company names
+     * Martijn: changed the return type since it is a requirement that managers cannot access reservations direcly
+     *          and they could if this method returned remote companies
      */
-    Collection<CarRentalCompanyRemote> getRegisteredCompanies() throws RemoteException;
+    Collection<String> getRegisteredCompanies() throws RemoteException;
 
     /**
      * @return a collection of all the companies and their car types
@@ -51,19 +52,20 @@ public interface ManagerSessionRemote extends SessionRemote {
      * gets the most wanted car type (the most number of reservations) for the given year
      * starting at the provided date and the provided company
      * @param calendarYear the year in which the success will be counted
-     * @param carRentalCompany the car rental company we want the most wanted car type from
+     * @param companyName the car rental company we want the most wanted car type from
      * @return the specs of the most wanted car type of the given calendar year
      *
      * note: returns the type instead of a string such that the manager may inspect the
      *       particularities of the car type
      */
-    CarType mostWanted(String carRentalCompany, Date calendarYear) throws RemoteException;
+    CarType mostWanted(String companyName, int calendarYear) throws RemoteException;
 
     /**
      * gets the best customer of the company (no date range specified)
      * @return the name of the best customer
+     * @param companyName the  name of the company to get the best customer for
      */
-    String bestCustomer(CarRentalCompanyRemote company) throws RemoteException;
+    String bestCustomer(String companyName) throws RemoteException;
 
     /**
      * gets the number of reservations done by a client

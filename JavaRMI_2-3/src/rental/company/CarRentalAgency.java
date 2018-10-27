@@ -8,13 +8,15 @@ import rental.session.RentalSession;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class CarRentalAgency {
 
     //TODO synchronization: What if we remove and lookup a company at the same time???
 
-    private Map<String,CarRentalCompanyRemote> registeredCompanies;
+    private Map<String,CarRentalCompanyRemote> registeredCompanies = new HashMap<>();
 
     /**
      * Getters and setters
@@ -72,7 +74,7 @@ public class CarRentalAgency {
      *         overview of all the available rental companies
      */
     public Collection<String> getAllCompanyNames(){
-        return getRegisteredCompanies().keySet();
+        return new HashSet<>(getRegisteredCompanies().keySet()); //HashMap$HashSet is not serializable, need to convert it first to a serializable interface!
     }
 
     /**
