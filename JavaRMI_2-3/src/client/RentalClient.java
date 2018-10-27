@@ -4,7 +4,7 @@ import interfaces.SessionManagerRemote;
 
 import java.rmi.RemoteException;
 
-public class RentalClient  extends AbstractClient{
+public class RentalClient extends AbstractClient{
 
     //TODO implement typical rental client functionality
 

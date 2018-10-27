@@ -3,6 +3,7 @@ package rental.session;
 import interfaces.CarRentalCompanyRemote;
 import interfaces.ManagerSessionRemote;
 import rental.company.CarRentalAgency;
+import rental.company.CarRentalCompany;
 import rental.company.CarType;
 import util.Pair;
 
@@ -19,7 +20,6 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     /**
      * Constructor
      */
-
     protected ManagerSession(CarRentalAgency agency, long sessionId, SessionManager manager) {
         super(agency, sessionId, manager);
     }
@@ -56,21 +56,33 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     @Override
     public Collection<Pair<String, Collection<CarType>>> getCarTypesPerCompany() throws RemoteException {
         //TODO implement
+        // Clara: Volgens mij moet er nog een extra methode aangemaakt worden in CarRentalCompanyRemote
+        // We kunnen momenteel enkel de available car types opvragen
         return null;
     }
 
     @Override
-    public CarType mostWanted(Date calendarYear) throws  RemoteException {
+    public CarType mostWanted(String carRentalCompany, Date calendarYear) throws  RemoteException {
         //TODO: implement the most wanted method
+        // Same as getCarTypesPerCompany
+        for (CarRentalCompanyRemote carRentalCompanyRemote : getRegisteredCompanies()) {
+
+        }
         return null;
     }
 
     @Override
-    public String bestCustomer() throws RemoteException{
+    public String bestCustomer(CarRentalCompanyRemote company) throws RemoteException{
+        //TODO This has to return a Set<String> of best customers
         Map<String, Long> reservationsByCustomers = getAllReservationsPerCustomer();
         return determineBestCustomer(reservationsByCustomers);
 
 
+    }
+
+    @Override
+    public int getReservationsBy(String client) throws RemoteException {
+        return getAllReservationsPerCustomer().get(client).intValue();
     }
 
     private Map<String, Long> getAllReservationsPerCustomer() throws RemoteException {

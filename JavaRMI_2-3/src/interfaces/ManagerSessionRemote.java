@@ -1,5 +1,6 @@
 package interfaces;
 
+import rental.company.CarRentalCompany;
 import rental.company.CarType;
 import util.Pair;
 
@@ -35,6 +36,7 @@ public interface ManagerSessionRemote extends SessionRemote {
      * @return a collection of all the companies and their car types
      * @throws RemoteException if something went wrong
      * TODO: Check if this method is really needed... seems a bit "overkill"
+     * Clara: Dit kan met een for lus toch gewoon? Laat voorlopig nog staan. Als we hem veel nodig hebben, kan dit handig zijn.
      */
     Collection<Pair<String, Collection<CarType>>> getCarTypesPerCompany() throws RemoteException;
 
@@ -47,19 +49,28 @@ public interface ManagerSessionRemote extends SessionRemote {
 
     /**
      * gets the most wanted car type (the most number of reservations) for the given year
-     * starting at the provided date
+     * starting at the provided date and the provided company
      * @param calendarYear the year in which the success will be counted
+     * @param carRentalCompany the car rental company we want the most wanted car type from
      * @return the specs of the most wanted car type of the given calendar year
      *
      * note: returns the type instead of a string such that the manager may inspect the
      *       particularities of the car type
      */
-    CarType mostWanted(Date calendarYear) throws RemoteException;
+    CarType mostWanted(String carRentalCompany, Date calendarYear) throws RemoteException;
 
     /**
      * gets the best customer of the company (no date range specified)
      * @return the name of the best customer
      */
-    String bestCustomer() throws RemoteException;
+    String bestCustomer(CarRentalCompanyRemote company) throws RemoteException;
+
+    /**
+     * gets the number of reservations done by a client
+     * @param client the client that has done the reservations
+     * @return the number of reservations
+     * @throws RemoteException
+     */
+    int getReservationsBy(String client) throws RemoteException;
 
 }

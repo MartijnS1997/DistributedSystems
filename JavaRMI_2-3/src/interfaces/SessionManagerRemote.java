@@ -27,6 +27,7 @@ public interface SessionManagerRemote extends Remote {
      * @throws RemoteException if something with the connection goes wrong
      * TODO check if it is feasable to set the currentSession as the argument, since now other sessions
      * can close different sessions than themselves
+     * Clara: Good question... How would you do it otherwise?
      */
     void closeSession(long sessionId) throws RemoteException;
 }

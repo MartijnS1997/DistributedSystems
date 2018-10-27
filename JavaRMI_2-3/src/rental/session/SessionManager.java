@@ -75,6 +75,7 @@ public class SessionManager implements SessionManagerRemote {
         return serverPort;
     }
 
+    //TODO Can this be private as according to suggestion?
     public static String getManagerName() {
         return MANAGER_NAME;
     }
@@ -108,6 +109,10 @@ public class SessionManager implements SessionManagerRemote {
         registerManager();
     }
 
+    /**
+     * Register this session manager so it can be found in the registry
+     * @throws RemoteException
+     */
     private void registerManager() throws RemoteException{
         //generate the stub
         SessionManagerRemote remoteManager = this;
@@ -121,7 +126,7 @@ public class SessionManager implements SessionManagerRemote {
      */
 
     /**
-     * creates a new rental session
+     * Creates a new rental session
      * @param clientName the name of the client for the session
      * @return the newly created stub (such that no extra lookup is needed)
      * @throws RemoteException if something goes wrong during registring and/or creating
@@ -134,7 +139,7 @@ public class SessionManager implements SessionManagerRemote {
         long sessionId = generateSessionId();
         RentalSessionRemote rentalSession = new RentalSession(clientName, getRentalAgency(), sessionId, this);
         //then create a stub for the rental session
-        return  addSessionToRegistry(rentalSession, sessionId);
+        return addSessionToRegistry(rentalSession, sessionId);
     }
     @Override
     public ManagerSessionRemote createManagerSession() throws RemoteException {
@@ -155,6 +160,10 @@ public class SessionManager implements SessionManagerRemote {
         }
     }
 
+    /**
+     * Increment the id counter and return that to the current session
+     * @return
+     */
     private long generateSessionId(){
         return idCounter++;
     }
