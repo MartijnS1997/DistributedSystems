@@ -81,7 +81,7 @@ public class RentalSession extends Session implements RentalSessionRemote {
     }
 
     @Override
-    public CarType getCheapestCarType(Date start, Date end, String region) {
+    public CarType getCheapestCarType(Date start, Date end, String region) throws RemoteException {
         return getRentalAgency().getAllRegisterdCompanies()
                 // Filter companies per region
                 .stream().filter(company -> company.getRegions().contains(region))

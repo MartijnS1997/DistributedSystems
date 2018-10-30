@@ -30,7 +30,7 @@ public interface CarRentalCompanyRemote extends Remote {
      * @param end the end date
      * @return a car type that is the cheapest
      */
-    CarType getCheapestCarType(Date start, Date end);
+    CarType getCheapestCarType(Date start, Date end) throws  RemoteException;
 
     /**
      * Create a quote on behalf of a client
@@ -94,12 +94,12 @@ public interface CarRentalCompanyRemote extends Remote {
      * Get the regions where the company is active
      * @return a list of regions
      */
-    List<String> getRegions();
+    List<String> getRegions() throws RemoteException;
 
     /**
      * A getter for all car types
      * @return a collection of all registered car types
      */
-    Collection<CarType> getAllCarTypes();
+    Collection<CarType> getAllCarTypes() throws RemoteException;
 
 }
