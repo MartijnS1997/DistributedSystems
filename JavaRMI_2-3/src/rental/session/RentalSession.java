@@ -57,11 +57,13 @@ public class RentalSession extends Session implements RentalSessionRemote {
 
     @Override
     public Collection<Reservation> confirmQuotes() throws RemoteException {
-        //TODO If exception thrown, cancel all reservations.
+        //TODO Need to rewrite because of ReservationExceptions
         List<Reservation> reservations = new LinkedList<>(); //linked list for fast addition of new reservations
         for (Quote quote : getCurrentQuotes()) {
             String company = quote.getRentalCompany();
+            CarRentalCompanyRemote rentalCompany;
             try{
+                rentalCompany = getRentalAgency().lookupRentalCompany(company);
                 Reservation reservation = getRentalAgency().lookupRentalCompany(company).confirmQuote(quote);
                 reservations.add(reservation);
             }catch(ReservationException e){
@@ -80,10 +82,15 @@ public class RentalSession extends Session implements RentalSessionRemote {
 
     @Override
     public CarType getCheapestCarType(Date start, Date end, String region) {
-        //TODO this is a dummy implementation i suppose? :p
-        //TODO jup, was to test some stuff
-        //TODO implement
-        return new CarType("hello", 1, 2.5f, 656.0, false);
+        return getRentalAgency().getAllRegisterdCompanies()
+                // Filter companies per region
+                .stream().filter(company -> company.getRegions().contains(region))
+                // Get the cheapest per company
+                .map(company -> company.getCheapestCarType(start,end))
+                // Find the cheapest
+                .reduce((cheapest,currentCarType)
+                        -> cheapest = currentCarType.getRentalPricePerDay() < cheapest.getRentalPricePerDay()
+                        ? currentCarType : cheapest).get();
     }
 
     @Override

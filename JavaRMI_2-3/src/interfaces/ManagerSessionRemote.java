@@ -1,6 +1,8 @@
 package interfaces;
 
+import rental.company.CarRentalCompany;
 import rental.company.CarType;
+import rental.company.ReservationException;
 import util.Pair;
 
 import java.rmi.RemoteException;
@@ -34,12 +36,13 @@ public interface ManagerSessionRemote extends SessionRemote {
     Collection<String> getRegisteredCompanies() throws RemoteException;
 
     /**
+     * @param company the name of the company
      * @return a collection of all the companies and their car types
      * @throws RemoteException if something went wrong
      * TODO: Check if this method is really needed... seems a bit "overkill"
      * Clara: Dit kan met een for lus toch gewoon? Laat voorlopig nog staan. Als we hem veel nodig hebben, kan dit handig zijn.
      */
-    Collection<Pair<String, Collection<CarType>>> getCarTypesPerCompany() throws RemoteException;
+    Collection<CarType> getCarTypesPerCompany(String company) throws RemoteException;
 
     /**
      * counts all the reservations for a specific car type
@@ -58,7 +61,7 @@ public interface ManagerSessionRemote extends SessionRemote {
      * note: returns the type instead of a string such that the manager may inspect the
      *       particularities of the car type
      */
-    CarType mostWanted(String companyName, int calendarYear) throws RemoteException;
+    CarType mostWanted(String companyName, int calendarYear) throws RemoteException, ReservationException;
 
     /**
      * gets the best customer of the company (no date range specified)

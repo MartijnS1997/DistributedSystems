@@ -24,16 +24,6 @@ public class SessionManager implements SessionManagerRemote {
     private final static String SESSION_STRING = "session";
 
     /**
-     * The name used to find the manager in the registry
-     */
-    private final static String MANAGER_NAME = "SessionManager";
-
-//    /**
-//     * map that stores the sessions created, based on the ID of the session
-//     */
-//    private Map<String,Session> sessions = new HashMap<>();
-
-    /**
      * counter to give each session a unique ID
      */
     private long idCounter = 1;
@@ -59,10 +49,6 @@ public class SessionManager implements SessionManagerRemote {
      * Getters and setters
      */
 
-//    private Map<String, Session> getSessions() {
-//        return sessions;
-//    }
-
     private CarRentalAgency getRentalAgency() {
         return rentalAgency;
     }
@@ -75,9 +61,8 @@ public class SessionManager implements SessionManagerRemote {
         return serverPort;
     }
 
-    //TODO Can this be private as according to suggestion?
     public static String getManagerName() {
-        return MANAGER_NAME;
+        return Constants.MANAGER_NAME;
     }
 
     /**
@@ -162,7 +147,7 @@ public class SessionManager implements SessionManagerRemote {
 
     /**
      * Increment the id counter and return that to the current session
-     * @return
+     * @return the session id
      */
     private long generateSessionId(){
         return idCounter++;

@@ -1,9 +1,6 @@
 package client.provided;
 
-import interfaces.CarRentalCompanyRemote;
-import interfaces.ManagerSessionRemote;
-import interfaces.RentalSessionRemote;
-import interfaces.SessionManagerRemote;
+import interfaces.*;
 import rental.company.*;
 import rental.session.SessionManager;
 
@@ -18,6 +15,10 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     private SessionManagerRemote sessionManager;
 
+    public SessionManagerRemote getSessionManager() {
+        return sessionManager;
+    }
+
     public static void main(String[] args) throws Exception {
         ClientMain main = new ClientMain();
         main.run();
@@ -31,15 +32,16 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     private void initSessionManager() throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry();
-        this.sessionManager = (SessionManagerRemote)registry.lookup(SessionManager.getManagerName());
+        this.sessionManager = (SessionManagerRemote)registry.lookup(Constants.MANAGER_NAME);
     }
 
 
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
-        //TODO a set of best clients?? So one from each company or do we have to compare and pick the top X clients?
+        // Get Companies
        return ms.getRegisteredCompanies().stream().map(companyName -> {
            try {
+               // Map to best customer
                return ms.bestCustomer(companyName);
            } catch (RemoteException e) {
                e.printStackTrace();
@@ -50,7 +52,6 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     @Override
     protected String getCheapestCarType(RentalSessionRemote rentalSessionRemote, Date start, Date end, String region) throws Exception {
-        //TODO Is it ok to use toString() here ? Yes :) carType implements to string
         return rentalSessionRemote.getCheapestCarType(start,end,region).toString();
     }
 
@@ -61,38 +62,36 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     @Override
     protected RentalSessionRemote getNewReservationSession(String name) throws Exception {
-        //TODO Do we set up a session manager here? If so sessionManager.createRentalSession(name);
-        return sessionManager.createRentalSession(name);
+        return getSessionManager().createRentalSession(name);
     }
 
     @Override
     protected ManagerSessionRemote getNewManagerSession(String name, String carRentalName) throws Exception {
-        //TODO Same as getNewReservationSession
-        return sessionManager.createManagerSession();
+        return getSessionManager().createManagerSession();
     }
 
     @Override
     protected void checkForAvailableCarTypes(RentalSessionRemote rentalSessionRemote, Date start, Date end) throws Exception {
         List<CarType> availableCarTypes = new ArrayList<>();
+        //Get companies
         for (String company : rentalSessionRemote.getAllCompanies()) {
+            // Available car types
             Collection<CarType> carTypes = rentalSessionRemote.getAvailableCarTypes(start,end,company);
             availableCarTypes.addAll(carTypes);
         }
 
+        // Print
         availableCarTypes.forEach(carType -> System.out.println(carType.toString()));
-        //TODO print availableCarTypes?
     }
 
     @Override
     protected void addQuoteToSession(RentalSessionRemote rentalSessionRemote, String name, Date start, Date end, String carType, String region) throws Exception {
-        //TODO We're missing a company name... Iterate all companies and pick the first that suffices? M: Yes i think so
         for (String company: rentalSessionRemote.getAllCompanies()) {
             Quote quote = rentalSessionRemote.createQuote(new ReservationConstraints(start,end,carType,region,company));
             if (quote != null) {
                 break;
             }
         }
-
     }
 
     @Override

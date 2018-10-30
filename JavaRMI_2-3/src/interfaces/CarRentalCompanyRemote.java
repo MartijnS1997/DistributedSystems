@@ -4,10 +4,7 @@ import rental.company.*;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public interface CarRentalCompanyRemote extends Remote {
@@ -26,6 +23,14 @@ public interface CarRentalCompanyRemote extends Remote {
      * @throws RemoteException
      */
     Set<CarType> getAvailableCarTypes(Date start, Date end) throws RemoteException;
+
+    /**
+     * Get the cheapest car type for this company
+     * @param start the start date
+     * @param end the end date
+     * @return a car type that is the cheapest
+     */
+    CarType getCheapestCarType(Date start, Date end);
 
     /**
      * Create a quote on behalf of a client
@@ -84,5 +89,17 @@ public interface CarRentalCompanyRemote extends Remote {
      * @throws RemoteException
      */
     void cancelReservation(Reservation reservation) throws RemoteException;
+
+    /**
+     * Get the regions where the company is active
+     * @return a list of regions
+     */
+    List<String> getRegions();
+
+    /**
+     * A getter for all car types
+     * @return a collection of all registered car types
+     */
+    Collection<CarType> getAllCarTypes();
 
 }

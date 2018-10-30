@@ -50,7 +50,8 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
     private void setRegions(List<String> regions) {
         this.regions = regions;
     }
-    
+
+    @Override
     public List<String> getRegions() {
         return this.regions;
     }
@@ -92,6 +93,13 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 			}
 		}
 		return availableCarTypes;
+	}
+
+	@Override
+	public CarType getCheapestCarType(Date start, Date end) {
+		return getAvailableCarTypes(start,end).stream()
+				.reduce((cheapest,current) -> cheapest = current.getRentalPricePerDay() < cheapest.getRentalPricePerDay()
+				? current : cheapest).get();
 	}
 	
 	/*********
@@ -268,4 +276,5 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
         }
         return total;
     }
+
 }
