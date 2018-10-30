@@ -162,7 +162,8 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	}
 	 @Override
 	 public synchronized Reservation confirmQuote(Quote quote) throws ReservationException {
-		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[]{name, quote.toString()});
+
+		 logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[]{name, quote.toString()});
 		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
 		if(availableCars.isEmpty())
 			throw new ReservationException("Reservation failed, all cars of type " + quote.getCarType()
@@ -191,7 +192,14 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 	@Override
 	public synchronized int getCarTypeReservationCount(String carType) {
 		int resCount = 0;
-		CarType type = getCarType(carType);
+		CarType type;
+
+		try{
+			type = getCarType(carType);
+		}catch(IllegalArgumentException e){
+			return 0; // the car type does not exist
+		}
+
 		for (Car car: cars) {
 			if (car.getType().equals(type)) {
 				resCount += car.getAllReservations().size();
@@ -250,16 +258,18 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
         //drop the rest of the date
         CarType mostWanted = null;
         long mostReservations = 0;
+
         for(CarType carType: carTypes.values()){
             //get all the cars of the particular type
             Collection<Car> carsOfType = cars.stream().filter(car-> car.getType().equals(carType)).collect(Collectors.toList());
+            System.out.println(carsOfType);
             long currentReservations = getNumberOfReservationsInYear(carsOfType, year);
+            System.out.println(currentReservations);
             if(currentReservations > mostReservations){
                 mostWanted = carType;
                 mostReservations = currentReservations;
             }
         }
-
         return  mostWanted;
     }
 
@@ -272,7 +282,11 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
     private long getNumberOfReservationsInYear(Collection<Car> cars, int year){
         int total = 0;
         for(Car car: cars){
-            total += car.getAllReservations().stream().filter(reservation -> reservation.getStartDate().getYear() == year).count();
+            total += car.getAllReservations().stream().filter(reservation -> {
+            	System.out.println("Reservation year: " + reservation.getStartDate().getYear());
+            	System.out.println("Reservation data: " + reservation.getStartDate());
+            	return reservation.getStartDate().getYear() + 1900 == year; //for some arcane reason java decided that christ was not born in the year 0 but in 1900
+            }).count();
         }
         return total;
     }

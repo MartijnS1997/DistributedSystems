@@ -48,7 +48,13 @@ public class RentalSession extends Session implements RentalSessionRemote {
     public Quote createQuote(ReservationConstraints constraints) throws ReservationException, RemoteException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(constraints.getCompanyName());
         companyNullCheck(carRentalCompany);
-        return carRentalCompany.createQuote(constraints,getClientName());
+        try{
+             Quote quote = carRentalCompany.createQuote(constraints,getClientName());
+             sessionQuotes.add(quote);
+             return quote;
+        }catch (Exception e){
+            throw new ReservationException("Something went wrong when creating a quote");
+        }
     }
 
     private static void companyNullCheck(CarRentalCompanyRemote carRentalCompany) throws ReservationException {
@@ -61,34 +67,45 @@ public class RentalSession extends Session implements RentalSessionRemote {
     }
 
     @Override
-    public Collection<Reservation> confirmQuotes() throws RemoteException {
-        //TODO Need to rewrite because of ReservationExceptions
-        List<Reservation> reservations = new LinkedList<>(); //linked list for fast addition of new reservations
-        for (Quote quote : getCurrentQuotes()) {
-            String company = quote.getRentalCompany();
-            CarRentalCompanyRemote rentalCompany;
-            try{
-                rentalCompany = getRentalAgency().lookupRentalCompany(company);
-                Reservation reservation = getRentalAgency().lookupRentalCompany(company).confirmQuote(quote);
+    public Collection<Reservation> confirmQuotes() throws RemoteException, ReservationException {
+        List<Reservation> reservations = new LinkedList<>();
+        for(Quote quote : sessionQuotes){ //use the local variable instead of the getter -> no remote exception
+            String companyName = quote.getRentalCompany();
+            CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
+            if(company == null){ rollBack(reservations);  }
+
+            try {
+                Reservation reservation = company.confirmQuote(quote); //ignore will (hopefully) work
                 reservations.add(reservation);
-            }catch(ReservationException e){
-                reservations.forEach(reservation -> {
-                    try {
-                        getRentalAgency().lookupRentalCompany(reservation.getRentalCompany()).cancelReservation(reservation);
-                    } catch (RemoteException e1) {
-                        e1.printStackTrace();
-                        //let the remote exception fly
-                    }
-                });
+            } catch (ReservationException e) {
+                rollBack(reservations);
+            }
+
+        }
+
+        return reservations;
+    }
+
+    private void rollBack(Collection<Reservation> reservations) throws ReservationException {
+
+        for(Reservation reservation : reservations){
+            CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(reservation.getRentalCompany());
+            if(company == null){ continue; } // we lost the company we cannot undo it
+            try {
+                company.cancelReservation(reservation);
+            } catch (RemoteException e) {
+                //just ignore it
             }
         }
-        return reservations;
+
+        throw new ReservationException("Error during confirming quotes");
     }
 
     @Override
     public CarType getCheapestCarType(Date start, Date end, String region) throws RemoteException {
         CarType cheapest = null;
         // Iterate all companies
+
         for (CarRentalCompanyRemote company : getRentalAgency().getAllRegisteredCompanies()) {
             if (company.getRegions().contains(region)) {
                 CarType currentType = company.getCheapestCarType(start,end);

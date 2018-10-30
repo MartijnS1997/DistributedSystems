@@ -21,7 +21,7 @@ public class CarRentalAgency {
 
     private synchronized Map<String, CarRentalCompanyRemote> getRegisteredCompanies() {
         // Shallow copy to prevent the map from changing when iterating the elements (e.g. in getReservationCount)
-        return new HashMap<>(registeredCompanies);
+        return registeredCompanies;
     }
 
 
@@ -46,7 +46,7 @@ public class CarRentalAgency {
      */
     public synchronized void registerCompany(CarRentalCompanyRemote company) throws RemoteException {
         Map<String, CarRentalCompanyRemote> registeredCompanies = getRegisteredCompanies();
-        registeredCompanies.put(company.getName(), company);
+        this.getRegisteredCompanies().put(company.getName(), company);
     }
 
     /**
@@ -55,7 +55,7 @@ public class CarRentalAgency {
      * @return the car rental company that was removed
      */
     public synchronized CarRentalCompanyRemote unregisterCompany(String companyName) {
-        return getRegisteredCompanies().remove(companyName);
+        return this.getRegisteredCompanies().remove(companyName); //use the instance variable because the getter returns a copy
     }
 
     /**
@@ -82,5 +82,7 @@ public class CarRentalAgency {
     public synchronized Collection<CarRentalCompanyRemote> getAllRegisteredCompanies(){
         return new ArrayList<>(getRegisteredCompanies().values());
     }
+
+
 
 }

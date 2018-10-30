@@ -47,7 +47,11 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     public int getReservationCount(String carType) throws RemoteException {
         int accumulator = 0;
         for (CarRentalCompanyRemote rentalCompany : getRentalAgency().getAllRegisteredCompanies()) {
-            accumulator += rentalCompany.getCarTypeReservationCount(carType);
+            try{
+                accumulator += rentalCompany.getCarTypeReservationCount(carType);
+            } catch(IllegalArgumentException e){
+                //let it fly
+            }
         }
 
         return accumulator;
