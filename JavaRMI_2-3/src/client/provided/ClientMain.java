@@ -87,9 +87,13 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
     @Override
     protected void addQuoteToSession(RentalSessionRemote rentalSessionRemote, String name, Date start, Date end, String carType, String region) throws Exception {
         for (String company: rentalSessionRemote.getAllCompanies()) {
-            Quote quote = rentalSessionRemote.createQuote(new ReservationConstraints(start,end,carType,region,company));
-            if (quote != null) {
-                break;
+            try {
+                Quote quote = rentalSessionRemote.createQuote(new ReservationConstraints(start,end,carType,region,company));
+                if (quote != null) {
+                    break;
+                }
+            } catch (ReservationException exc) {
+                // let it go
             }
         }
     }
