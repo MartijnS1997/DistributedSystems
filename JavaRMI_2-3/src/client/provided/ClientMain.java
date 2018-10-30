@@ -92,7 +92,7 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
                 if (quote != null) {
                     break;
                 }
-            } catch (ReservationException exc) {
+            } catch (Exception exc) {
                 // let it go
             }
         }

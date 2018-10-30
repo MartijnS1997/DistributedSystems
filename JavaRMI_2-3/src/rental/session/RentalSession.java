@@ -47,6 +47,7 @@ public class RentalSession extends Session implements RentalSessionRemote {
     @Override
     public Quote createQuote(ReservationConstraints constraints) throws ReservationException, RemoteException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(constraints.getCompanyName());
+        if(carRentalCompany == null) { throw new ReservationException("Company doesn't exist"); }
         return carRentalCompany.createQuote(constraints,getClientName());
     }
 
