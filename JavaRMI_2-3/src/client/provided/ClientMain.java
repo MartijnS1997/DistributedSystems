@@ -52,7 +52,7 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     @Override
     protected String getCheapestCarType(RentalSessionRemote rentalSessionRemote, Date start, Date end, String region) throws Exception {
-        return rentalSessionRemote.getCheapestCarType(start,end,region).toString();
+        return rentalSessionRemote.getCheapestCarType(start,end,region).getName();
     }
 
     @Override
