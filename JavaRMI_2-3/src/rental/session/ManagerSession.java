@@ -5,9 +5,7 @@ import interfaces.ManagerSessionRemote;
 import rental.company.*;
 
 import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ManagerSession extends Session implements ManagerSessionRemote {
 
@@ -72,48 +70,25 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     }
 
     @Override
-    public String bestCustomer(String companyName) throws RemoteException, ReservationException {
-        CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
-        companyNullCheck(company);
-
-        long mostReservations = 0;
-        String bestCustomerName = "";
-
-        Map<String, Long> reservationCountMap = company.getReservationCountPerCustomer();
-        for (String customer : reservationCountMap.keySet()) {
-            long currentCount = reservationCountMap.get(customer);
-            if (currentCount > mostReservations) {
-                mostReservations = currentCount;
-                bestCustomerName = customer;
-            }
+    public Set<String> bestCustomers() throws RemoteException, ReservationException {
+        Set<String> bestCustomers = new HashSet<>();
+        for(String companyName : getRentalAgency().getAllCompanyNames()) {
+            CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
+            companyNullCheck(company);
+            bestCustomers.add(company.getBestCustomer());
         }
-
-        return bestCustomerName;
+        return bestCustomers;
     }
 
     @Override
     public int getReservationsBy(String client) throws RemoteException, ReservationException {
-        Long nb_res = getAllReservationsPerCustomer().get(client);
-        if (nb_res == null){
-            throw new ReservationException("Customer doesn't exist!");
+        int accumulator = 0;
+        for (String company : getRentalAgency().getAllCompanyNames()) {
+            CarRentalCompanyRemote rentalCompany = getRentalAgency().lookupRentalCompany(company);
+            companyNullCheck(rentalCompany);
+            accumulator += rentalCompany.getYourReservations(client).size();
         }
-        return nb_res.intValue();
+        return accumulator;
     }
 
-    private Map<String, Long> getAllReservationsPerCustomer() throws RemoteException, ReservationException {
-        Collection<String> allCompanies = getRentalAgency().getAllCompanyNames();
-        Map<String, Long> reservationsPerCustomer = new HashMap<>();
-
-        //first get the total per customer
-        for (String company : allCompanies) {
-            CarRentalCompanyRemote currentCompany = getRentalAgency().lookupRentalCompany(company);
-            companyNullCheck(currentCompany);
-            //sumCustomerReservations(reservationsPerCustomer, currentCompany);
-            currentCompany.getReservationCountPerCustomer()
-                    .forEach((customer, reservations) -> reservationsPerCustomer
-                            .merge(customer, reservations, Long::sum));
-        }
-
-        return reservationsPerCustomer;
-    }
 }

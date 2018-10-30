@@ -38,16 +38,7 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
-        // Get Companies
-       return ms.getRegisteredCompanies().stream().map(companyName -> {
-           try {
-               // Map to best customer
-               return ms.bestCustomer(companyName);
-           } catch (RemoteException | ReservationException e) {
-               e.printStackTrace();
-               return "An error Occurred";
-           }
-       }).collect(Collectors.toSet());
+        return ms.bestCustomers();
     }
 
     @Override

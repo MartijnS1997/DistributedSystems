@@ -208,21 +208,18 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		return resCount;
 	}
 
-	@Override
-    public synchronized Map<String, Long> getReservationCountPerCustomer() {
-        Map<String, Long> customerMap = new HashMap<>();
-        for (String customer : getCustomers()) {
-            long currentCount = 0;
-            for (Car car : cars) {
-                currentCount +=  car.getAllReservations().stream().
-                        filter(reservation -> reservation.getCarRenter().equals(customer)).count();
-            }
-
-            customerMap.put(customer, currentCount);
-        }
-
-        return customerMap;
-    }
+	public String getBestCustomer() throws RemoteException {
+    	String bestCustomer ="";
+    	int mostReservations = 0;
+    	for(String customer : getCustomers()) {
+			int currentReservations = getYourReservations(customer).size();
+    		if (currentReservations > mostReservations) {
+    			mostReservations = currentReservations;
+    			bestCustomer = customer;
+			}
+		}
+		return bestCustomer;
+	}
 
 //  we could have replaced the inner loop with the following lambda...
 //    long reservationCount = cars.stream().

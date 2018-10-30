@@ -69,13 +69,6 @@ public interface CarRentalCompanyRemote extends Remote {
     int getCarTypeReservationCount(String carTypes) throws RemoteException;
 
     /**
-     * Get the reservations each client has made
-     * @return a map of (client, nb_res)
-     * @throws RemoteException
-     */
-    Map<String, Long> getReservationCountPerCustomer() throws RemoteException;
-
-    /**
      * Getter for the  most wanted car type in the specified date
      * @param calendarYear integer representing the year in which to look for reservations
      * @return the most wanted car type
@@ -101,5 +94,7 @@ public interface CarRentalCompanyRemote extends Remote {
      * @return a collection of all registered car types
      */
     Collection<CarType> getAllCarTypes() throws RemoteException;
+
+    public String getBestCustomer() throws RemoteException;
 
 }

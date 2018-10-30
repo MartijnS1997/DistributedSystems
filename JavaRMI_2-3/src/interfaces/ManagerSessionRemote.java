@@ -8,6 +8,7 @@ import util.Pair;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * The manager session is responsible for managing the activities
@@ -66,9 +67,8 @@ public interface ManagerSessionRemote extends SessionRemote {
     /**
      * gets the best customer of the company (no date range specified)
      * @return the name of the best customer
-     * @param companyName the  name of the company to get the best customer for
      */
-    String bestCustomer(String companyName) throws RemoteException, ReservationException;
+    Set<String> bestCustomers() throws RemoteException, ReservationException;
 
     /**
      * gets the number of reservations done by a client
