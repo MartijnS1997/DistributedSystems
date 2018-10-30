@@ -82,15 +82,20 @@ public class RentalSession extends Session implements RentalSessionRemote {
 
     @Override
     public CarType getCheapestCarType(Date start, Date end, String region) throws RemoteException {
-        return getRentalAgency().getAllRegisterdCompanies()
-                // Filter companies per region
-                .stream().filter(company -> company.getRegions().contains(region))
-                // Get the cheapest per company
-                .map(company -> company.getCheapestCarType(start,end))
-                // Find the cheapest
-                .reduce((cheapest,currentCarType)
-                        -> cheapest = currentCarType.getRentalPricePerDay() < cheapest.getRentalPricePerDay()
-                        ? currentCarType : cheapest).get();
+        CarType cheapest = null;
+        // Iterate all companies
+        for (CarRentalCompanyRemote company : getRentalAgency().getAllRegisterdCompanies()) {
+            if (company.getRegions().contains(region)) {
+                CarType currentType = company.getCheapestCarType(start,end);
+                if (cheapest == null) {
+                    cheapest = currentType;
+                }
+                else if (cheapest.getRentalPricePerDay() > currentType.getRentalPricePerDay()) {
+                    cheapest = currentType;
+                }
+            }
+        }
+        return cheapest;
     }
 
     @Override
