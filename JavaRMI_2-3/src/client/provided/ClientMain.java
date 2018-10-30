@@ -43,7 +43,7 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
            try {
                // Map to best customer
                return ms.bestCustomer(companyName);
-           } catch (RemoteException e) {
+           } catch (RemoteException | ReservationException e) {
                e.printStackTrace();
                return "An error Occurred";
            }

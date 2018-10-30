@@ -44,7 +44,7 @@ public interface RentalSessionRemote extends SessionRemote {
      * Getter for all the available car types
      * @return a collection of all the car types that are available
      */
-    Collection<CarType> getAvailableCarTypes(Date start, Date end, String companyName) throws RemoteException;
+    Collection<CarType> getAvailableCarTypes(Date start, Date end, String companyName) throws RemoteException, ReservationException;
 
     /**
      * Getter for all the rental companies that are managed by the agency

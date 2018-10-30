@@ -2,14 +2,10 @@ package rental.session;
 
 import interfaces.CarRentalCompanyRemote;
 import interfaces.ManagerSessionRemote;
-import rental.company.CarRentalAgency;
-import rental.company.CarType;
-import rental.company.ReservationException;
-import util.Pair;
+import rental.company.*;
 
 import java.rmi.RemoteException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +16,12 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
      */
     protected ManagerSession(CarRentalAgency agency, long sessionId, SessionManager manager) {
         super(agency, sessionId, manager);
+    }
+
+    private static void companyNullCheck(CarRentalCompanyRemote carRentalCompany) throws ReservationException {
+        if (carRentalCompany == null) {
+            throw new ReservationException("Company doesn't exist!");
+        }
     }
 
     /**
@@ -44,7 +46,7 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     @Override
     public int getReservationCount(String carType) throws RemoteException {
         int accumulator = 0;
-        for (CarRentalCompanyRemote rentalCompany : getRentalAgency().getAllRegisterdCompanies()) {
+        for (CarRentalCompanyRemote rentalCompany : getRentalAgency().getAllRegisteredCompanies()) {
             accumulator += rentalCompany.getCarTypeReservationCount(carType);
         }
 
@@ -52,24 +54,23 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     }
 
     @Override
-    public Collection<CarType> getCarTypesPerCompany(String company) throws RemoteException {
+    public Collection<CarType> getCarTypesPerCompany(String company) throws RemoteException, ReservationException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(company);
+        companyNullCheck(carRentalCompany);
         return carRentalCompany.getAllCarTypes();
     }
 
     @Override
     public CarType mostWanted(String companyName, int calendarYear) throws RemoteException, ReservationException {
-        try {
-            return getRentalAgency().lookupRentalCompany(companyName).mostWanted(calendarYear);
-        } catch (NullPointerException exc) {
-            throw new ReservationException("Company doesn't exist!");
-        }
-
+        CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
+        companyNullCheck(company);
+        return company.mostWanted(calendarYear);
     }
 
     @Override
-    public String bestCustomer(String companyName) throws RemoteException {
+    public String bestCustomer(String companyName) throws RemoteException, ReservationException {
         CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
+        companyNullCheck(company);
 
         long mostReservations = 0;
         String bestCustomerName = "";
@@ -87,17 +88,22 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     }
 
     @Override
-    public int getReservationsBy(String client) throws RemoteException {
-        return getAllReservationsPerCustomer().get(client).intValue();
+    public int getReservationsBy(String client) throws RemoteException, ReservationException {
+        Long nb_res = getAllReservationsPerCustomer().get(client);
+        if (nb_res == null){
+            throw new ReservationException("Customer doesn't exist!");
+        }
+        return nb_res.intValue();
     }
 
-    private Map<String, Long> getAllReservationsPerCustomer() throws RemoteException {
+    private Map<String, Long> getAllReservationsPerCustomer() throws RemoteException, ReservationException {
         Collection<String> allCompanies = getRentalAgency().getAllCompanyNames();
         Map<String, Long> reservationsPerCustomer = new HashMap<>();
 
         //first get the total per customer
         for (String company : allCompanies) {
             CarRentalCompanyRemote currentCompany = getRentalAgency().lookupRentalCompany(company);
+            companyNullCheck(currentCompany);
             //sumCustomerReservations(reservationsPerCustomer, currentCompany);
             currentCompany.getReservationCountPerCustomer()
                     .forEach((customer, reservations) -> reservationsPerCustomer

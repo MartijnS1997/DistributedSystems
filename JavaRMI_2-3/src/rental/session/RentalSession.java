@@ -47,8 +47,12 @@ public class RentalSession extends Session implements RentalSessionRemote {
     @Override
     public Quote createQuote(ReservationConstraints constraints) throws ReservationException, RemoteException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(constraints.getCompanyName());
-        if(carRentalCompany == null) { throw new ReservationException("Company doesn't exist"); }
+        companyNullCheck(carRentalCompany);
         return carRentalCompany.createQuote(constraints,getClientName());
+    }
+
+    private static void companyNullCheck(CarRentalCompanyRemote carRentalCompany) throws ReservationException {
+        if(carRentalCompany == null) { throw new ReservationException("Company doesn't exist"); }
     }
 
     @Override
@@ -85,7 +89,7 @@ public class RentalSession extends Session implements RentalSessionRemote {
     public CarType getCheapestCarType(Date start, Date end, String region) throws RemoteException {
         CarType cheapest = null;
         // Iterate all companies
-        for (CarRentalCompanyRemote company : getRentalAgency().getAllRegisterdCompanies()) {
+        for (CarRentalCompanyRemote company : getRentalAgency().getAllRegisteredCompanies()) {
             if (company.getRegions().contains(region)) {
                 CarType currentType = company.getCheapestCarType(start,end);
                 if (cheapest == null) {
@@ -100,8 +104,9 @@ public class RentalSession extends Session implements RentalSessionRemote {
     }
 
     @Override
-    public Collection<CarType> getAvailableCarTypes(Date start, Date end, String companyName) throws RemoteException {
+    public Collection<CarType> getAvailableCarTypes(Date start, Date end, String companyName) throws RemoteException, ReservationException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(companyName);
+        companyNullCheck(carRentalCompany);
         return carRentalCompany.getAvailableCarTypes(start, end);
     }
 
