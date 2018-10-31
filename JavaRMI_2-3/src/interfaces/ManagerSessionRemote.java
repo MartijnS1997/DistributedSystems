@@ -40,10 +40,8 @@ public interface ManagerSessionRemote extends SessionRemote {
      * @param company the name of the company
      * @return a collection of all the companies and their car types
      * @throws RemoteException if something went wrong
-     * TODO: Check if this method is really needed... seems a bit "overkill"
-     * Clara: Dit kan met een for lus toch gewoon? Laat voorlopig nog staan. Als we hem veel nodig hebben, kan dit handig zijn.
      */
-    Collection<CarType> getCarTypesPerCompany(String company) throws RemoteException, ReservationException;
+    Collection<CarType> getCarTypesPerCompany(String company) throws RemoteException;
 
     /**
      * counts all the reservations for a specific car type
@@ -62,13 +60,13 @@ public interface ManagerSessionRemote extends SessionRemote {
      * note: returns the type instead of a string such that the manager may inspect the
      *       particularities of the car type
      */
-    CarType mostWanted(String companyName, int calendarYear) throws RemoteException, ReservationException;
+    CarType mostWanted(String companyName, int calendarYear) throws RemoteException;
 
     /**
      * gets the best customer of the company (no date range specified)
      * @return the name of the best customer
      */
-    Set<String> bestCustomers() throws RemoteException, ReservationException;
+    Set<String> bestCustomersPerCompany() throws RemoteException;
 
     /**
      * gets the number of reservations done by a client
@@ -76,7 +74,7 @@ public interface ManagerSessionRemote extends SessionRemote {
      * @return the number of reservations
      * @throws RemoteException
      */
-    int getReservationsBy(String client) throws RemoteException, ReservationException;
+    int getReservationsBy(String client) throws RemoteException;
 
-    Set<String> getGlobalBestCustomers() throws RemoteException;
+    Set<String> getBestCustomers() throws RemoteException;
 }

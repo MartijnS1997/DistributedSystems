@@ -7,8 +7,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class does lifecycle management of sessions, so that CarRentalAgency does not need to be concerned with that.
@@ -61,7 +59,7 @@ public class SessionManager implements SessionManagerRemote {
         return serverPort;
     }
 
-    public static String getManagerName() {
+    private static String getManagerName() {
         return Constants.MANAGER_NAME;
     }
 
@@ -126,6 +124,7 @@ public class SessionManager implements SessionManagerRemote {
         //then create a stub for the rental session
         return addSessionToRegistry(rentalSession, sessionId);
     }
+
     @Override
     public ManagerSessionRemote createManagerSession() throws RemoteException {
         //first create a new manager session instance
@@ -139,8 +138,9 @@ public class SessionManager implements SessionManagerRemote {
     public void closeSession(long sessionId) throws RemoteException{
         //remove the session from the registry
         try{
-            getServerRegistry().unbind(Long.toString(sessionId));
+            getServerRegistry().unbind(getSessionName(sessionId));
         }catch(NotBoundException e){
+            e.printStackTrace();
             //let it fly
         }
     }
@@ -165,9 +165,8 @@ public class SessionManager implements SessionManagerRemote {
         //create the stub from the session
         S sessionStub = (S) UnicastRemoteObject.exportObject(session, getServerPort()); //ignore the warning, will work
         //add the session to the registry
-        getServerRegistry().rebind(getUniqueSessionName(identifier), sessionStub);
+        getServerRegistry().rebind(getSessionName(identifier), sessionStub);
         return sessionStub;
-
     }
 
     /**
@@ -175,7 +174,7 @@ public class SessionManager implements SessionManagerRemote {
      * @param sessionID the id to convert
      * @return the name of the session created. Used to get a unique name in the RMI registry
      */
-    private static String getUniqueSessionName(long sessionID){
+    private static String getSessionName(long sessionID){
         return SESSION_STRING + '/' + sessionID;
     }
 }

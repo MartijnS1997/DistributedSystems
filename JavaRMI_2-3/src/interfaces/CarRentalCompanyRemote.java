@@ -102,6 +102,11 @@ public interface CarRentalCompanyRemote extends Remote {
      */
     Collection<CarType> getAllCarTypes() throws RemoteException;
 
+    /**
+     * Getter for the best customer of the current company
+     * @return the name of the best customer
+     * @throws RemoteException
+     */
     String getBestCustomer() throws RemoteException;
 
 }

@@ -13,7 +13,6 @@ public class BootServersMain {
     public static void main(String[] args) throws IOException, ReservationException {
         Collection<CarRentalCompany> companies = CarRentalCompanyServer.createCompanies();
         CarRentalCompanyServer.init(companies);
-        System.out.println(companies.toString());
         AgencyServer.init(new HashSet<>(companies));
 
     }

@@ -16,12 +16,6 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
         super(agency, sessionId, manager);
     }
 
-    private static void companyNullCheck(CarRentalCompanyRemote carRentalCompany) throws ReservationException {
-        if (carRentalCompany == null) {
-            throw new ReservationException("Company doesn't exist!");
-        }
-    }
-
     /**
      * implementation of remote interface
      */
@@ -38,17 +32,19 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
 
     @Override
     public Collection<String> getRegisteredCompanies() throws RemoteException {
-        return getRentalAgency().getAllCompanyNames();
+        return getRentalAgency().registeredCompanyNames();
     }
 
     @Override
     public int getReservationCount(String carType) throws RemoteException {
         int accumulator = 0;
-        for (CarRentalCompanyRemote rentalCompany : getRentalAgency().getAllRegisteredCompanies()) {
+        Collection<String> companies = getRentalAgency().registeredCompanyNames();
+        for(String companyName : companies){
+            CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
             try{
-                accumulator += rentalCompany.getCarTypeReservationCount(carType);
-            } catch(IllegalArgumentException e){
-                //let it fly
+                accumulator += company.getCarTypeReservationCount(carType);
+            } catch (IllegalArgumentException e){
+                // means the company does not supply the car type
             }
         }
 
@@ -56,44 +52,40 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     }
 
     @Override
-    public Collection<CarType> getCarTypesPerCompany(String company) throws RemoteException, ReservationException {
+    public Collection<CarType> getCarTypesPerCompany(String company) throws RemoteException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(company);
-        companyNullCheck(carRentalCompany);
         return carRentalCompany.getAllCarTypes();
     }
 
     @Override
-    public CarType mostWanted(String companyName, int calendarYear) throws RemoteException, ReservationException {
+    public CarType mostWanted(String companyName, int calendarYear) throws RemoteException {
         CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
-        companyNullCheck(company);
         return company.mostWanted(calendarYear);
     }
 
     @Override
-    public Set<String> bestCustomers() throws RemoteException, ReservationException {
+    public Set<String> bestCustomersPerCompany() throws RemoteException {
         Set<String> bestCustomers = new HashSet<>();
 
-        for(String companyName : getRentalAgency().getAllCompanyNames()) {
+        for(String companyName : getRentalAgency().registeredCompanyNames()) {
             CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
-            companyNullCheck(company);
             bestCustomers.add(company.getBestCustomer());
         }
         return bestCustomers;
     }
 
     @Override
-    public int getReservationsBy(String client) throws RemoteException, ReservationException {
+    public int getReservationsBy(String client) throws RemoteException {
         int accumulator = 0;
-        for (String company : getRentalAgency().getAllCompanyNames()) {
+        for (String company : getRentalAgency().registeredCompanyNames()) {
             CarRentalCompanyRemote rentalCompany = getRentalAgency().lookupRentalCompany(company);
-            companyNullCheck(rentalCompany);
             accumulator += rentalCompany.getYourReservations(client).size();
         }
         return accumulator;
     }
 
     @Override
-    public Set<String> getGlobalBestCustomers() throws RemoteException {
+    public Set<String> getBestCustomers() throws RemoteException {
         Map<String, Integer> customerReservations = mergeCompanyCustomerRankings();
         return getBestCustomers(customerReservations);
     }
@@ -120,7 +112,7 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
      * @throws RemoteException
      */
     private Map<String, Integer> mergeCompanyCustomerRankings() throws RemoteException {
-        Collection<String> companies = getRentalAgency().getAllCompanyNames();
+        Collection<String> companies = getRentalAgency().registeredCompanyNames();
         Map<String, Integer> customerReservations = new HashMap<>();
 
         for(String companyName: companies){

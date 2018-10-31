@@ -208,12 +208,12 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
 		return resCount;
 	}
 
+	@Override
 	public String getBestCustomer() throws RemoteException {
     	String bestCustomer ="";
     	int mostReservations = 0;
     	for(String customer : getCustomers()) {
 			int currentReservations = getYourReservations(customer).size();
-			System.out.println("current_customer: " + customer + "reservations: " + currentReservations);
     		if (currentReservations > mostReservations) {
     			mostReservations = currentReservations;
     			bestCustomer = customer;
@@ -276,9 +276,7 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
         for(CarType carType: carTypes.values()){
             //get all the cars of the particular type
             Collection<Car> carsOfType = cars.stream().filter(car-> car.getType().equals(carType)).collect(Collectors.toList());
-            System.out.println(carsOfType);
             long currentReservations = getNumberOfReservationsInYear(carsOfType, year);
-            System.out.println(currentReservations);
             if(currentReservations > mostReservations){
                 mostWanted = carType;
                 mostReservations = currentReservations;

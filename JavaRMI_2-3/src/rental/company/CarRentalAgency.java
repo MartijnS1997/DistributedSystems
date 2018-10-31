@@ -11,7 +11,8 @@ import java.util.*;
 
 public class CarRentalAgency {
 
-    //TODO synchronization: What if we remove and lookup a company at the same time???
+    //Note all the methods are synchronized to prevent that the registered companies are changed during
+    //a lookup, causing race conditions
 
     private Map<String,CarRentalCompanyRemote> registeredCompanies = new HashMap<>();
 
@@ -19,7 +20,7 @@ public class CarRentalAgency {
      * Getters and setters
      */
 
-    private synchronized Map<String, CarRentalCompanyRemote> getRegisteredCompanies() {
+    private  Map<String, CarRentalCompanyRemote> getRegisteredCompanies() {
         // Shallow copy to prevent the map from changing when iterating the elements (e.g. in getReservationCount)
         return registeredCompanies;
     }
@@ -45,7 +46,6 @@ public class CarRentalAgency {
      *           the name) this has as a consequence that remote exceptions can be thrown from a non remote class
      */
     public synchronized void registerCompany(CarRentalCompanyRemote company) throws RemoteException {
-        Map<String, CarRentalCompanyRemote> registeredCompanies = getRegisteredCompanies();
         this.getRegisteredCompanies().put(company.getName(), company);
     }
 
@@ -62,27 +62,25 @@ public class CarRentalAgency {
      * Lookup for a car rental company
      * @param companyName the name used for the lookup
      * @return a stub to a registered company
+     * @implNote lookup is used to find registered companies
+     *           if a client needs a certain company it first requests all the available companies
+     *           and then it asks for a lookup. Note that because the method is synchronized, it is safe
+     *           to retrieve a company. However it is possible that the company is removed afterwards.
+     *           (The client still has the stub to the company so as long as the company server is not
+     *            shut down the client can continue it's interaction)
      */
-    public synchronized CarRentalCompanyRemote lookupRentalCompany(String companyName) {
-        return getRegisteredCompanies().get(companyName);
+    public synchronized CarRentalCompanyRemote lookupRentalCompany(String companyName) throws RemoteException {
+        CarRentalCompanyRemote remoteCompany = getRegisteredCompanies().get(companyName);
+        if(remoteCompany == null) { throw new RemoteException();}
+        return remoteCompany;
     }
 
     /**
      * @return a collection of all the registered company names. This call is used by the client to get an
      *         overview of all the available rental companies
      */
-    public synchronized Collection<String> getAllCompanyNames(){
+    public synchronized Collection<String> registeredCompanyNames(){
         return new HashSet<>(getRegisteredCompanies().keySet()); //HashMap$HashSet is not serializable, need to convert it first to a serializable interface!
     }
-
-    /**
-     * getter for all the registered companies in the car rental agency
-     * @return all the registered companies
-     */
-    public synchronized Collection<CarRentalCompanyRemote> getAllRegisteredCompanies(){
-        return new ArrayList<>(getRegisteredCompanies().values());
-    }
-
-
 
 }

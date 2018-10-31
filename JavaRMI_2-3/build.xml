@@ -15,9 +15,9 @@
 	            => Package: client Classname: Client
 	   The third parameter is filename for the final zip.	   
     ******************************************************** -->
-  <property name="main.client" value="client.Client" />
-  <property name="main.server" value="rental.company.RentalServer" />
-  <property name="zip.filename" value="claradesmet_martijnsauwens_rmi1" />
+  <property name="main.client" value="client.ClientMain" />
+  <property name="main.server" value="rental.servers.BootServersMain" />
+  <property name="zip.filename" value="martijn.sauwens.zip" />
   <!--
     ********************************************************
        Please DO NOT CHANGE any code below this line.

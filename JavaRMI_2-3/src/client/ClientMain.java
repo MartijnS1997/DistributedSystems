@@ -1,15 +1,14 @@
-package client.provided;
+package client;
 
+import client.provided.AbstractTestManagement;
 import interfaces.*;
 import rental.company.*;
-import rental.session.SessionManager;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ClientMain extends AbstractTestManagement<RentalSessionRemote, ManagerSessionRemote> {
 
@@ -21,6 +20,10 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     public static void main(String[] args) throws Exception {
         ClientMain main = new ClientMain();
+        //option: manager registers the company
+        if(args.length > 0 && args[0].equals("MR")){
+            main.registerAllCompanies();
+        }
         main.run();
     }
 
@@ -38,7 +41,7 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
-        return ms.getGlobalBestCustomers();
+        return ms.getBestCustomers();
     }
 
     @Override
@@ -108,5 +111,16 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
     protected int getNumberOfReservationsForCarType(ManagerSessionRemote ms, String carRentalName, String carType) throws Exception {
         //TODO carRentalName isn't necessary in my opinion? M: lets see what their tests return
         return ms.getReservationCount(carType);
+    }
+
+    private void registerAllCompanies() throws Exception {
+        String companyFiles[] = {"hertz.csv", "dockx.csv"};
+        ManagerSessionRemote ms = getNewManagerSession("", "");
+        for(String companyFile: companyFiles){
+            CarRentalCompanyRemote company = CompanyCreator.createCompany(companyFile);
+            ms.registerRentalCompany(company);
+        }
+
+        ms.close(); //close the session
     }
 }

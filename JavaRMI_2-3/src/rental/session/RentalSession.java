@@ -47,7 +47,6 @@ public class RentalSession extends Session implements RentalSessionRemote {
     @Override
     public Quote createQuote(ReservationConstraints constraints) throws ReservationException, RemoteException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(constraints.getCompanyName());
-        companyNullCheck(carRentalCompany);
         try{
              Quote quote = carRentalCompany.createQuote(constraints,getClientName());
              sessionQuotes.add(quote);
@@ -55,10 +54,6 @@ public class RentalSession extends Session implements RentalSessionRemote {
         }catch (Exception e){
             throw new ReservationException("Something went wrong when creating a quote");
         }
-    }
-
-    private static void companyNullCheck(CarRentalCompanyRemote carRentalCompany) throws ReservationException {
-        if(carRentalCompany == null) { throw new ReservationException("Company doesn't exist"); }
     }
 
     @Override
@@ -89,8 +84,14 @@ public class RentalSession extends Session implements RentalSessionRemote {
     private void rollBack(Collection<Reservation> reservations) throws ReservationException {
 
         for(Reservation reservation : reservations){
-            CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(reservation.getRentalCompany());
-            if(company == null){ continue; } // we lost the company we cannot undo it
+
+            CarRentalCompanyRemote company;
+            try{
+                company = getRentalAgency().lookupRentalCompany(reservation.getRentalCompany());
+
+            }catch(RemoteException e){
+                continue; //we've lost the company we cannot undo it
+            }
             try {
                 company.cancelReservation(reservation);
             } catch (RemoteException e) {
@@ -106,7 +107,8 @@ public class RentalSession extends Session implements RentalSessionRemote {
         CarType cheapest = null;
         // Iterate all companies
 
-        for (CarRentalCompanyRemote company : getRentalAgency().getAllRegisteredCompanies()) {
+        for (String companyName : getRentalAgency().registeredCompanyNames()) {
+            CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
             if (company.getRegions().contains(region)) {
                 CarType currentType = company.getCheapestCarType(start,end);
                 if (cheapest == null) {
@@ -123,13 +125,12 @@ public class RentalSession extends Session implements RentalSessionRemote {
     @Override
     public Collection<CarType> getAvailableCarTypes(Date start, Date end, String companyName) throws RemoteException, ReservationException {
         CarRentalCompanyRemote carRentalCompany = getRentalAgency().lookupRentalCompany(companyName);
-        companyNullCheck(carRentalCompany);
         return carRentalCompany.getAvailableCarTypes(start, end);
     }
 
     @Override
     public Collection<String> getAllCompanies() {
-        return getRentalAgency().getAllCompanyNames();
+        return getRentalAgency().registeredCompanyNames();
     }
 
 }

@@ -1,62 +1,31 @@
-package rental.servers;
+package client;
 
 import interfaces.CarRentalCompanyRemote;
 import rental.company.Car;
 import rental.company.CarRentalCompany;
 import rental.company.CarType;
 import rental.company.ReservationException;
+import rental.servers.CarRentalCompanyServer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-/**
- * The server used by the car rental companies
- * will store the information about every car rental company
- * --> each rental company should get a different server in principle
- */
-public class CarRentalCompanyServer {
-    public static void init( Collection<CarRentalCompany> companies) throws ReservationException, IOException {
-        System.setSecurityManager(null);
-
-        try{
-            Registry registry = LocateRegistry.getRegistry();
-            //then add all the companies to the registers
-            registerAllCompanies(companies, registry);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
+public class CompanyCreator {
+    public  static CarRentalCompanyRemote createCompany(String csvFileName) throws IOException, ReservationException {
+        CrcData companyData = loadData(csvFileName);
+        CarRentalCompanyRemote company = new CarRentalCompany(companyData.name, companyData.regions, companyData.cars);
+        Registry registry = LocateRegistry.getRegistry();
+        CarRentalCompanyRemote stub = (CarRentalCompanyRemote) UnicastRemoteObject.exportObject(company, PORT);
+        registry.rebind(company.getName(), stub);
+        return stub;
     }
 
-    private static void registerAllCompanies(Collection<CarRentalCompany> companies, Registry registry) throws RemoteException {
-        for(CarRentalCompanyRemote company: companies){
-            CarRentalCompanyRemote stub = (CarRentalCompanyRemote) UnicastRemoteObject.exportObject(company, PORT);
-            registry.rebind(company.getName(), stub);
-        }
-    }
-
-    public static Collection<CarRentalCompany> createCompanies() throws IOException, ReservationException {
-        CrcData hertzData = loadData(HERTZ);
-        CrcData dockxData = loadData(DOCKX);
-        CarRentalCompany hertz = new CarRentalCompany(hertzData.name, hertzData.regions, hertzData.cars);
-        CarRentalCompany dockx = new CarRentalCompany(dockxData.name, dockxData.regions, dockxData.cars);
-
-        List<CarRentalCompany> companyList = new ArrayList<>();
-        companyList.add(hertz);
-        companyList.add(dockx);
-
-        return companyList;
-
-    }
-
-    public static CrcData loadData(String datafile)
+    private static CrcData loadData(String datafile)
             throws ReservationException, NumberFormatException, IOException {
 
         CrcData out = new CrcData();
@@ -106,8 +75,6 @@ public class CarRentalCompanyServer {
         public List<String> regions =  new LinkedList<String>();
     }
 
-    private final static String HERTZ = "hertz.csv";
-    private final static String DOCKX = "dockx.csv";
-
     private final static int PORT = 0;
+
 }
