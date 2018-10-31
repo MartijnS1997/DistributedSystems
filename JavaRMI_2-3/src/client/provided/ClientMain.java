@@ -38,7 +38,7 @@ public class ClientMain extends AbstractTestManagement<RentalSessionRemote, Mana
 
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
-        return ms.bestCustomers();
+        return ms.getGlobalBestCustomers();
     }
 
     @Override

@@ -72,6 +72,7 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
     @Override
     public Set<String> bestCustomers() throws RemoteException, ReservationException {
         Set<String> bestCustomers = new HashSet<>();
+
         for(String companyName : getRentalAgency().getAllCompanyNames()) {
             CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
             companyNullCheck(company);
@@ -90,5 +91,72 @@ public class ManagerSession extends Session implements ManagerSessionRemote {
         }
         return accumulator;
     }
+
+    @Override
+    public Set<String> getGlobalBestCustomers() throws RemoteException {
+        Map<String, Integer> customerReservations = mergeCompanyCustomerRankings();
+        return getBestCustomers(customerReservations);
+    }
+
+    private Set<String> getBestCustomers(Map<String, Integer> customerReservations){
+        int maxRents = getMaxMapValue(customerReservations);
+        Set<String> bestCustomers = new HashSet<>();
+        for(String customer : customerReservations.keySet()){
+            if(customerReservations.get(customer) == maxRents){
+                bestCustomers.add(customer);
+            }
+        }
+
+        return bestCustomers;
+    }
+
+    private Integer getMaxMapValue(Map<String, Integer> customerReservations){
+        return customerReservations.values().stream().max(Integer::compareTo).get();
+    }
+
+    /**
+     * merges for all the companies the number of reservations for each customer to create a map
+     * that contains the number of reservations for all the companies
+     * @throws RemoteException
+     */
+    private Map<String, Integer> mergeCompanyCustomerRankings() throws RemoteException {
+        Collection<String> companies = getRentalAgency().getAllCompanyNames();
+        Map<String, Integer> customerReservations = new HashMap<>();
+
+        for(String companyName: companies){
+            CarRentalCompanyRemote company = getRentalAgency().lookupRentalCompany(companyName);
+            Map<String, Integer> currentCountPerCustomer = company.reservationsPerCustomer();
+            mergeIntValueMap(customerReservations, currentCountPerCustomer);
+        }
+
+        return customerReservations;
+    }
+
+
+    /**
+     * Merges the two provided maps of integers and a given key into one map summing the integers if
+     * both keys are present in the map
+     * @param target the map to merge the result into
+     * @param toMerge the map to merge with the target
+     * @param <Key> the type of the key used in the map to merge
+     */
+    private static <Key> void mergeIntValueMap(Map<Key, Integer> target, Map<Key, Integer> toMerge){
+        for(Key toMergeKey : toMerge.keySet()){
+
+            //if the map contains the key
+            if(target.containsKey(toMergeKey)){
+                //sum the value
+                Integer merged = target.get(toMergeKey) + toMerge.get(toMergeKey);
+                target.put(toMergeKey, merged);
+            //if there is no such key, just put the to merge value in the map
+            }else{
+                target.put(toMergeKey, toMerge.get(toMergeKey));
+            }
+        }
+
+        //we've merged the set
+    }
+
+
 
 }

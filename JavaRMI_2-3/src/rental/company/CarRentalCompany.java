@@ -213,12 +213,29 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
     	int mostReservations = 0;
     	for(String customer : getCustomers()) {
 			int currentReservations = getYourReservations(customer).size();
+			System.out.println("current_customer: " + customer + "reservations: " + currentReservations);
     		if (currentReservations > mostReservations) {
     			mostReservations = currentReservations;
     			bestCustomer = customer;
 			}
 		}
 		return bestCustomer;
+	}
+
+	/**
+	 * Gets the number of reservations for each client
+	 * @return a map with for each customer the number of reservations made by that customer
+	 */
+	@Override
+	public Map<String, Integer> reservationsPerCustomer() throws RemoteException {
+
+		Map<String, Integer> reservationCount = new HashMap<>();
+
+    	for(String customer : getCustomers()){
+    		reservationCount.put(customer, getYourReservations(customer).size());
+		}
+
+		return reservationCount;
 	}
 
 //  we could have replaced the inner loop with the following lambda...
@@ -280,8 +297,6 @@ public class CarRentalCompany implements CarRentalCompanyRemote {
         int total = 0;
         for(Car car: cars){
             total += car.getAllReservations().stream().filter(reservation -> {
-            	System.out.println("Reservation year: " + reservation.getStartDate().getYear());
-            	System.out.println("Reservation data: " + reservation.getStartDate());
             	return reservation.getStartDate().getYear() + 1900 == year; //for some arcane reason java decided that christ was not born in the year 0 but in 1900
             }).count();
         }

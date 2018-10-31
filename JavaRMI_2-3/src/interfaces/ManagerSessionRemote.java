@@ -78,4 +78,5 @@ public interface ManagerSessionRemote extends SessionRemote {
      */
     int getReservationsBy(String client) throws RemoteException, ReservationException;
 
+    Set<String> getGlobalBestCustomers() throws RemoteException;
 }
