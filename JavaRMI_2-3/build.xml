@@ -17,7 +17,7 @@
     ******************************************************** -->
   <property name="main.client" value="client.ClientMain" />
   <property name="main.server" value="rental.servers.BootServersMain" />
-  <property name="zip.filename" value="martijn.sauwens.zip" />
+  <property name="zip.filename" value="martijn.sauwens" />
   <!--
     ********************************************************
        Please DO NOT CHANGE any code below this line.
