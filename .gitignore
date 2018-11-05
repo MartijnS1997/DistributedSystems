@@ -43,3 +43,6 @@ hs_err_pid*
 
 #visual paradigm
 *vpp.lck
+/JavaEE_2-3/assignment2/CarRental/nbproject/private/
+/JavaEE_2-3/assignment2/CarRental-client/nbproject/private/
+/JavaEE_2-3/assignment2/CarRental-ejb/nbproject/private/
