@@ -8,14 +8,49 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.TransactionAttribute;
+import static javax.ejb.TransactionAttributeType.NOT_SUPPORTED;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import rental.Car;
+import rental.CarType;
+import rental.Quote;
+import rental.Reservation;
+import rental.ReservationConstraints;
+import rental.ReservationException;
 
+@Entity
+@TransactionAttribute(NOT_SUPPORTED)
 public class CarRentalCompany {
 
     private static Logger logger = Logger.getLogger(CarRentalCompany.class.getName());
     private String name;
+    
+    // both creation and deletion of CarRentalCompany should cascade to its cars -> ALL
+    // carRentalCompany is the foreign key in the Car table
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "carRentalCompany") 
     private List<Car> cars;
+    
+    
+    // both creation and deletion of CarRentalCompany should cascade to its car types -> ALL
+    // carRentalCompany is the foreign key in the CarType table
+    // Design decision: Car Types are not shared between companies
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "carRentalCompany")
     private Set<CarType> carTypes = new HashSet<CarType>();
-	private List<String> regions;
+    
+    // regions are strings (basic type) and mapped to CarRentalCompany
+    @ElementCollection
+    private List<String> regions;
+        
+     @Id
+     @GeneratedValue(strategy = GenerationType.AUTO)
+     private int id;
 
 	
     /***************
@@ -166,14 +201,14 @@ public class CarRentalCompany {
         }
         Car car = availableCars.get((int) (Math.random() * availableCars.size()));
 
-        Reservation res = new Reservation(quote, car.getId());
+        Reservation res = new Reservation(quote, car);
         car.addReservation(res);
         return res;
     }
 
     public void cancelReservation(Reservation res) {
         logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
-        getCar(res.getCarId()).removeReservation(res);
+        res.car.removeReservation(res);
     }
     
     public Set<Reservation> getReservationsBy(String renter) {

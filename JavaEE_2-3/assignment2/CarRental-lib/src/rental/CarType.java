@@ -1,7 +1,14 @@
 package rental;
 
 import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
+@Entity
 public class CarType implements Serializable{
     
     private String name;
@@ -10,6 +17,15 @@ public class CarType implements Serializable{
     private double rentalPricePerDay;
     //trunk space in liters
     private float trunkSpace;
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    
+    // One car rental company can have multiple car types, but each car type should have a unique name
+    @ManyToOne
+    @Column(unique = true)
+    public CarRentalCompany carRentalCompany;
     
     /***************
      * CONSTRUCTOR *

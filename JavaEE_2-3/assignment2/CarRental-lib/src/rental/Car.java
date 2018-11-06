@@ -3,12 +3,34 @@ package rental;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import rental.CarType;
+import rental.Reservation;
 
+@Entity
 public class Car {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    
+    // Unidirectional relation between Car and CarType (so Car knows about its CarType, but CarType doesn't
+    // know how many Cars it has)
+    @ManyToOne
     private CarType type;
+    
+    // One car can have many reservations, a reservation can have only one car
+    // If a car is removed, the reservations should also be removed -> REMOVE
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "car")
     private Set<Reservation> reservations;
+   
+
 
     /***************
      * CONSTRUCTOR *
@@ -18,14 +40,6 @@ public class Car {
     	this.id = uid;
         this.type = type;
         this.reservations = new HashSet<Reservation>();
-    }
-
-    /******
-     * ID *
-     ******/
-    
-    public int getId() {
-    	return id;
     }
     
     /************
