@@ -1,5 +1,6 @@
 package session;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -10,7 +11,14 @@ import rental.CarRentalCompany;
 import rental.CarType;
 import rental.RentalStore;
 import rental.Reservation;
+import rental.ReservationConstraints;
 
+/**
+ * Important note: A manager cannot create a new CarType unless a CarRentalCompany already 
+ * exists. The same goes for Car and CarType.
+ * @author Clara De Smet
+ * @author Martijn Sauwens
+ */
 @Stateless
 public class ManagerSession implements ManagerSessionRemote {
     
@@ -25,11 +33,11 @@ public class ManagerSession implements ManagerSessionRemote {
     }
 
     @Override
-    public Set<Integer> getCarIds(String company, String type) {
-        Set<Integer> out = new HashSet<Integer>();
+    public Set<Car> getCars(String company, String type) {
+        Set<Car> out = new HashSet<Car>();
         try {
             for(Car c: RentalStore.getRental(company).getCars(type)){
-                out.add(c.getId());
+                out.add(c);
             }
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
@@ -60,6 +68,41 @@ public class ManagerSession implements ManagerSessionRemote {
             return 0;
         }
         return out.size();
+    }
+
+    @Override
+    public Set<String> getAllRentalCompanies() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addRentalCompany(String company, Set<String> regions) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addCarType(String company, CarType carType) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addCar(String company, Car car) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Set<String> bestClients() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public CarType getMostPopular(String company, Date year) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public CarType getCheapestCarType(ReservationConstraints constraints) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -23,7 +23,7 @@ public class Car {
     // Unidirectional relation between Car and CarType (so Car knows about its CarType, but CarType doesn't
     // know how many Cars it has)
     @ManyToOne
-    private CarType type;
+    protected CarType type;
     
     // One car can have many reservations, a reservation can have only one car
     // If a car is removed, the reservations should also be removed -> REMOVE

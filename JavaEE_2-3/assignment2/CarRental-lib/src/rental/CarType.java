@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class CarType implements Serializable{
+public class CarType implements Serializable {
     
     private String name;
     private int nbOfSeats;
