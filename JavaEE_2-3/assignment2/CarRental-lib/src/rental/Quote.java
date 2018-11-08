@@ -12,16 +12,16 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public class Quote implements Serializable {
 
-    private Date startDate;
-    private Date endDate;
-    private String carRenter;
-    private String rentalCompany;
-    private String carType;
-    private double rentalPrice;
+    public Date startDate;
+    public Date endDate;
+    public String carRenter;
+    public String rentalCompany;
+    public String carType;
+    public double rentalPrice;
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    public int id;
     
     
     /***************

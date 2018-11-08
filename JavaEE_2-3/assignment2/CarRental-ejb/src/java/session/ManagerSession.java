@@ -2,10 +2,13 @@ package session;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
@@ -21,6 +24,10 @@ import rental.ReservationConstraints;
  */
 @Stateless
 public class ManagerSession implements ManagerSessionRemote {
+    
+    //the persistence manager used to add the new companies, cars and car types
+    @PersistenceContext
+    EntityManager entityManager;
     
     @Override
     public Set<CarType> getCarTypes(String company) {
@@ -76,21 +83,6 @@ public class ManagerSession implements ManagerSessionRemote {
     }
 
     @Override
-    public void addRentalCompany(String company, Set<String> regions) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void addCarType(String company, CarType carType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void addCar(String company, Car car) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public Set<String> bestClients() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -104,5 +96,34 @@ public class ManagerSession implements ManagerSessionRemote {
     public CarType getCheapestCarType(ReservationConstraints constraints) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+     @Override
+    public void addRentalCompany(String companyName, List<String> regions) {
+        CarRentalCompany company = new CarRentalCompany(companyName, regions);
+        entityManager.persist(company);
+    }
+    
+    @Override
+    public void addCar(String companyName, Car car) {
+        //get the company to add the car to
+        CarRentalCompany company = entityManager.find(CarRentalCompany.class, companyName);
+        car.carRentalCompany = company;
+        CarType carType = car.type;
+        CarType carTypeInDatabase = entityManager.find(CarType.class, carType.name);
+        
+        if(carTypeInDatabase != null){
+            car.type = carTypeInDatabase;
+        }else{
+            entityManager.persist(carType);
+        }
+        entityManager.persist(car);
+    }
 
+    @Override
+    public void addCarRentalCompany(String companyName, List<String> regions, List<Car> cars) {
+        CarRentalCompany company = new CarRentalCompany(companyName, regions, cars);
+        entityManager.persist(company);
+    }
+    
+    
 }

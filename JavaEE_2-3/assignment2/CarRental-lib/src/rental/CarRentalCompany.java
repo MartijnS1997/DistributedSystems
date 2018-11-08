@@ -1,5 +1,6 @@
 package rental;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -11,12 +12,14 @@ import java.util.logging.Logger;
 import javax.ejb.TransactionAttribute;
 import static javax.ejb.TransactionAttributeType.NOT_SUPPORTED;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import rental.Car;
 import rental.CarType;
 import rental.Quote;
@@ -27,35 +30,54 @@ import rental.ReservationException;
 @Entity
 @TransactionAttribute(NOT_SUPPORTED)
 public class CarRentalCompany {
-
+    
+    /**
+     * Logger should not persist
+     */
+    @Transient
     private static Logger logger = Logger.getLogger(CarRentalCompany.class.getName());
-    private String name;
+    
+    /**
+     * The primary key of the company is its name, used for easy lookup based on name
+     */
+    @Id
+    public String name;
     
     // both creation and deletion of CarRentalCompany should cascade to its cars -> ALL
     // carRentalCompany is the foreign key in the Car table
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "carRentalCompany") 
-    private List<Car> cars;
+    public List<Car> cars;
     
     
     // both creation and deletion of CarRentalCompany should cascade to its car types -> ALL
     // carRentalCompany is the foreign key in the CarType table
     // Design decision: Car Types are not shared between companies
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "carRentalCompany")
-    private Set<CarType> carTypes = new HashSet<CarType>();
+    public Set<CarType> carTypes = new HashSet<CarType>();
     
     // regions are strings (basic type) and mapped to CarRentalCompany
     @ElementCollection
-    private List<String> regions;
+    public List<String> regions;
         
-     @Id
-     @GeneratedValue(strategy = GenerationType.AUTO)
-     private int id;
+//    //auto generate the primary key to let the container decide the best strategy
+//     @Id
+//     @GeneratedValue(strategy = GenerationType.AUTO)
+//     private int id;
 
 	
     /***************
      * CONSTRUCTOR *
      ***************/
-
+     
+    /**
+     * Constructor for a car rental company with no cars
+     * @param name the name of the company
+     * @param regions the regions in which the company operates
+     */
+     public CarRentalCompany(String name, List<String> regions){
+         this(name, regions, new ArrayList<Car>());
+     }
+     
     public CarRentalCompany(String name, List<String> regions, List<Car> cars) {
         logger.log(Level.INFO, "<{0}> Starting up CRC {0} ...", name);
         setName(name);
@@ -126,7 +148,7 @@ public class CarRentalCompany {
     
     public Car getCar(int uid) {
         for (Car car : cars) {
-            if (car.getId() == uid) {
+            if (car.id == uid) {
                 return car;
             }
         }

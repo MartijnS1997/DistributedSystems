@@ -6,25 +6,31 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
 public class CarType implements Serializable {
     
-    private String name;
-    private int nbOfSeats;
-    private boolean smokingAllowed;
-    private double rentalPricePerDay;
-    //trunk space in liters
-    private float trunkSpace;
-    
+    /**
+     * Use the name of the car type as the primary key, each car type should
+     * have an unique ID and can be looked up by it
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    public String name;
+    public int nbOfSeats;
+    public boolean smokingAllowed;
+    public double rentalPricePerDay;
+    //trunk space in liters
+    public float trunkSpace;
+    
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.AUTO)
+//    private int id;
     
     // One car rental company can have multiple car types, but each car type should have a unique name
     @ManyToOne
-    @Column(unique = true)
+    @JoinColumn(unique = true) //join column instead of column to make glassfish happy
     public CarRentalCompany carRentalCompany;
     
     /***************

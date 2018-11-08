@@ -1,6 +1,7 @@
 package session;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import javax.ejb.Remote;
 import rental.Car;
@@ -38,27 +39,6 @@ public interface ManagerSessionRemote {
     public Set<String> getAllRentalCompanies();
     
     /**
-     * Add a rental company
-     * @param company
-     * @param regions 
-     */
-    public void addRentalCompany(String company, Set<String> regions);
-    
-    /**
-     * Add a CarType. The CarRentalCompany should already exist.
-     * @param company
-     * @param carType 
-     */
-    public void addCarType(String company, CarType carType);
-    
-    /**
-     * 
-     * @param company
-     * @param car 
-     */
-    public void addCar(String company, Car car);
-    
-    /**
      * Get the best client(s) across all car rental companies (has to be a set in case of a tie)
      * @return a set of the best clients
      */
@@ -78,5 +58,37 @@ public interface ManagerSessionRemote {
      * @return the cheapest car type
      */
     public CarType getCheapestCarType(ReservationConstraints constraints);
+    
+     /**
+     * Add a rental company, the company entity gets
+     * constructed based on the provided values
+     * @param company the name of the company to add
+     * @param regions the list of regions the company is active in
+     */
+    public void addRentalCompany(String company, List<String> regions);
+    
+//    /**
+//     * Add a CarType. The CarRentalCompany should already exist.
+//     * @param company
+//     * @param carType 
+//     */
+//    public void addCarType(String company, CarType carType);
+//    
+    /**
+     * Adds a car to the rental company.
+     * If the car type to be added already exists, the old car type is 
+     * updated
+     * @param company the name of the company to add the car to
+     * @param car the car to add to the company
+     */
+    public void addCar(String company, Car car);
+    
+    /**
+     * creates a new company with existing cars
+     * @param company the name of the company to add
+     * @param regions the regions in which the company operates
+     * @param cars the cars that are rented by the company
+     */
+    public void addCarRentalCompany(String company, List<String> regions, List<Car> cars);
       
 }

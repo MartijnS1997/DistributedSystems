@@ -5,22 +5,38 @@ import java.util.List;
 import java.util.Set;
 import javax.naming.InitialContext;
 import rental.CarType;
+import rental.RentalStore;
+import rental.RentalStore.CrcData;
 import rental.Reservation;
 import rental.ReservationConstraints;
 import session.CarRentalSessionRemote;
 import session.ManagerSessionRemote;
 
 public class Main extends AbstractTestManagement<CarRentalSessionRemote, ManagerSessionRemote> {
-
+    
+    private ManagerSessionRemote managerSession;
+    
     public Main(String scriptFile) throws Exception {
         super(scriptFile);
-        new Main("trips").run();
     }
 
     public static void main(String[] args) throws Exception {
         // TODO: use updated manager interface to load cars into companies
+        Main main = new Main("trips");
+        main.loadCarRentalCompanies();
+        //main.run();
+        
         }
-
+    
+    private void loadCarRentalCompanies() throws Exception{
+        ManagerSessionRemote managerSession = getNewManagerSession("", "");
+        List<CrcData> crcData = RentalStore.loadAllRentalData();
+        //load all the data into the car rental company
+        for(CrcData crc: crcData){
+            managerSession.addCarRentalCompany(crc.name, crc.regions, crc.cars);
+        }
+    }
+    
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -43,7 +59,8 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected ManagerSessionRemote getNewManagerSession(String name, String carRentalName) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       InitialContext context = new InitialContext();
+       return (ManagerSessionRemote) context.lookup(ManagerSessionRemote.class.getName());
     }
 
     @Override
