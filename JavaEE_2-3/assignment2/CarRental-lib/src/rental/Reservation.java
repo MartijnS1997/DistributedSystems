@@ -1,6 +1,5 @@
 package rental;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -8,20 +7,36 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class Reservation extends Quote implements Serializable {
+public class Reservation extends Quote {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int reservationID;
 
-    //Reservation has only one car, a car can have many reservations
-    @ManyToOne 
-    public Car car; // has to be public
+    @ManyToOne
+    private Car car;
     
     /***************
      * CONSTRUCTOR *
      ***************/
+    
+    /**
+     * Default constructor for JPA
+     */
+    protected Reservation() {  }
 
     public Reservation(Quote quote, Car car) {
     	super(quote.getCarRenter(), quote.getStartDate(), quote.getEndDate(), 
     		quote.getRentalCompany(), quote.getCarType(), quote.getRentalPrice());
         this.car = car;
+    }
+    
+    /******
+     * ID *
+     ******/
+    
+    public int getCarId() {
+    	return car.getId();
     }
     
     /*************
@@ -31,6 +46,6 @@ public class Reservation extends Quote implements Serializable {
     @Override
     public String toString() {
         return String.format("Reservation for %s from %s to %s at %s\nCar type: %s\tCar: %s\nTotal price: %.2f", 
-                getCarRenter(), getStartDate(), getEndDate(), getRentalCompany(), getCarType(), car, getRentalPrice());
+                getCarRenter(), getStartDate(), getEndDate(), getRentalCompany(), getCarType(), getCarId(), getRentalPrice());
     }	
 }

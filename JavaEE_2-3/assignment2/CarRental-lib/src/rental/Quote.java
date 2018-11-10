@@ -2,31 +2,31 @@ package rental;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import static javax.persistence.TemporalType.DATE;
 
-// If we make a Quote, it cannot be an Entity. But every subclass does have a seperate table (-> Reservation).
-// @MappedSuperClass is necessary because the instances in Quote would otherwise not be persistant.
 @MappedSuperclass
 public class Quote implements Serializable {
-
-    public Date startDate;
-    public Date endDate;
-    public String carRenter;
-    public String rentalCompany;
-    public String carType;
-    public double rentalPrice;
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    public int id;
-    
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
+    private String carRenter;
+    private String rentalCompany;
+    private String carType;
+    private double rentalPrice;
     
     /***************
      * CONSTRUCTOR *
      ***************/
+    
+    /**
+     * Default constructor needed for JPA
+     */
+    public Quote(){ }
 
     public Quote(String carRenter, Date start, Date end, String rentalCompany, String carType, double rentalPrice) {
         this.carRenter = carRenter;

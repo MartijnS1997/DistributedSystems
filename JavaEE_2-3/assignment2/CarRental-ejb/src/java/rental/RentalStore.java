@@ -3,7 +3,6 @@ package rental;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -47,13 +46,6 @@ public class RentalStore {
         }
 
     }
-    
-    public static List<CrcData> loadAllRentalData() throws IOException {
-        List<CrcData> dataList = new ArrayList<>();
-        dataList.add(loadData("hertz.csv"));
-        dataList.add(loadData("dockx.csv"));
-        return dataList;
-    }
 
     public static CrcData loadData(String datafile)
             throws NumberFormatException, IOException {
@@ -85,7 +77,7 @@ public class RentalStore {
                             Boolean.parseBoolean(csvReader.nextToken()));
                     //create N new cars with given type, where N is the 5th field
                     for (int i = Integer.parseInt(csvReader.nextToken()); i > 0; i--) {
-                        out.cars.add(new Car(nextuid++, type));
+                        out.cars.add(new Car(/*nextuid++, */ type));
                     }        
                 }
             } 
@@ -96,7 +88,7 @@ public class RentalStore {
         return out;
     }
     
-    public static class CrcData {
+    static class CrcData {
             public List<Car> cars = new LinkedList<Car>();
             public String name;
             public List<String> regions =  new LinkedList<String>();

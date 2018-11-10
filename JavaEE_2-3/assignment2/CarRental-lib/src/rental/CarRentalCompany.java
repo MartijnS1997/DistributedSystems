@@ -9,82 +9,73 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.TransactionAttribute;
-import static javax.ejb.TransactionAttributeType.NOT_SUPPORTED;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.PERSIST;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import static javax.persistence.FetchType.EAGER;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import rental.Car;
-import rental.CarType;
-import rental.Quote;
-import rental.Reservation;
-import rental.ReservationConstraints;
-import rental.ReservationException;
 
 @Entity
-@TransactionAttribute(NOT_SUPPORTED)
 public class CarRentalCompany {
     
-    /**
-     * Logger should not persist
-     */
     @Transient
     private static Logger logger = Logger.getLogger(CarRentalCompany.class.getName());
-    
     /**
-     * The primary key of the company is its name, used for easy lookup based on name
+     * We picked the name of the rental company to be the primary key for
+     * the car rental company class since two companies should have 
+     * different names and it allows for lookup by find instead of
+     * a full JPQL Query
      */
     @Id
-    public String name;
+    private String name;
+    /**
+     * Cascade all because if the company is deleted all the car types
+     * are deleted too, each company has their own cars that belong to them
+     */
+    @OneToMany(cascade=ALL, mappedBy = "company")
+    private List<Car> cars = new ArrayList<Car>();
     
-    // both creation and deletion of CarRentalCompany should cascade to its cars -> ALL
-    // carRentalCompany is the foreign key in the Car table
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "carRentalCompany") 
-    public List<Car> cars;
+    /**
+     * each company has their own car types connected to them, allowing
+     * us to cascade the deletions. If a many to many approach was taken 
+     * we could not cascade the deletion of car types
+     * --> note that to support different pricing per car type
+     *     each company should define their car types
+     * fetch: EAGER. Is needed to force the car types to become readily
+     *        available if we want to return the set of car types in the 
+     *        manager session. Downside is that for each instance
+     *        of a rental company, car types are loaded even if they
+     *        are not used (may be replaced later with a fetch join)
+     */
+    @OneToMany(fetch=EAGER, cascade=ALL, mappedBy = "company")
+    private Set<CarType> carTypes = new HashSet<CarType>();
     
-    
-    // both creation and deletion of CarRentalCompany should cascade to its car types -> ALL
-    // carRentalCompany is the foreign key in the CarType table
-    // Design decision: Car Types are not shared between companies
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "carRentalCompany")
-    public Set<CarType> carTypes = new HashSet<CarType>();
-    
-    // regions are strings (basic type) and mapped to CarRentalCompany
     @ElementCollection
-    public List<String> regions;
-        
-//    //auto generate the primary key to let the container decide the best strategy
-//     @Id
-//     @GeneratedValue(strategy = GenerationType.AUTO)
-//     private int id;
+    private List<String> regions = new ArrayList<String>();
 
 	
     /***************
      * CONSTRUCTOR *
      ***************/
-     
+    
     /**
-     * Constructor for a car rental company with no cars
-     * @param name the name of the company
-     * @param regions the regions in which the company operates
+     * No argument constructor needed for JPA
      */
-     public CarRentalCompany(String name, List<String> regions){
-         this(name, regions, new ArrayList<Car>());
-     }
-     
+    protected CarRentalCompany(){ }
+
     public CarRentalCompany(String name, List<String> regions, List<Car> cars) {
         logger.log(Level.INFO, "<{0}> Starting up CRC {0} ...", name);
         setName(name);
         this.cars = cars;
         setRegions(regions);
         for (Car car : cars) {
-            carTypes.add(car.getType());
+            car.setCompany(this);
+            CarType type = car.getType();
+            type.setCompany(this);
+            carTypes.add(type);
         }
     }
 
@@ -115,7 +106,7 @@ public class CarRentalCompany {
      * CAR TYPES *
      *************/
     
-    public Collection<CarType> getAllTypes() {
+    public Set<CarType> getAllTypes() {
         return carTypes;
     }
 
@@ -148,7 +139,7 @@ public class CarRentalCompany {
     
     public Car getCar(int uid) {
         for (Car car : cars) {
-            if (car.id == uid) {
+            if (car.getId() == uid) {
                 return car;
             }
         }
@@ -229,7 +220,7 @@ public class CarRentalCompany {
 
     public void cancelReservation(Reservation res) {
         logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
-        res.car.removeReservation(res);
+        getCar(res.getCarId()).removeReservation(res);
     }
     
     public Set<Reservation> getReservationsBy(String renter) {

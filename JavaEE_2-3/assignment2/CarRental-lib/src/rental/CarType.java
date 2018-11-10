@@ -1,41 +1,47 @@
 package rental;
 
 import java.io.Serializable;
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
 public class CarType implements Serializable {
     
-    /**
-     * Use the name of the car type as the primary key, each car type should
-     * have an unique ID and can be looked up by it
-     */
+    //note that we have to generate an unique id because each company
+    //has to define their own car types, if we would choose the name of the
+    //car type to be the primary key. No two companies would be able to offer 
+    //the same car type
     @Id
-    public String name;
-    public int nbOfSeats;
-    public boolean smokingAllowed;
-    public double rentalPricePerDay;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    
+    /**
+     * Because we do not use the ToOne side of the relationship
+     * between company and car type often, we do not need to load it
+     * every time a car type is queried (this side of the relationship is 
+     * only in place because the company should gain access to car types)
+     */
+    @ManyToOne(fetch=FetchType.LAZY)
+    private CarRentalCompany company;
+    private String name;
+    private int nbOfSeats;
+    private boolean smokingAllowed;
+    private double rentalPricePerDay;
     //trunk space in liters
-    public float trunkSpace;
-    
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
-//    private int id;
-    
-    // One car rental company can have multiple car types, but each car type should have a unique name
-    @ManyToOne
-    @JoinColumn(unique = true) //join column instead of column to make glassfish happy
-    public CarRentalCompany carRentalCompany;
+    private float trunkSpace;
     
     /***************
      * CONSTRUCTOR *
      ***************/
+    
+    /**
+     * Default constructor needed for JPA
+     */
+    protected CarType(){ }
     
     public CarType(String name, int nbOfSeats, float trunkSpace, double rentalPricePerDay, boolean smokingAllowed) {
         this.name = name;
@@ -43,6 +49,10 @@ public class CarType implements Serializable {
         this.trunkSpace = trunkSpace;
         this.rentalPricePerDay = rentalPricePerDay;
         this.smokingAllowed = smokingAllowed;
+    }
+    
+    protected void setCompany(CarRentalCompany company){
+        this.company = company;
     }
 
     public String getName() {

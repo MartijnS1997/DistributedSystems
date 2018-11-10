@@ -1,42 +1,47 @@
 package client;
 
+import client.CompanyLoader.CrcData;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.naming.InitialContext;
 import rental.CarType;
-import rental.RentalStore;
-import rental.RentalStore.CrcData;
 import rental.Reservation;
 import rental.ReservationConstraints;
 import session.CarRentalSessionRemote;
 import session.ManagerSessionRemote;
 
 public class Main extends AbstractTestManagement<CarRentalSessionRemote, ManagerSessionRemote> {
-    
-    private ManagerSessionRemote managerSession;
-    
-    public Main(String scriptFile) throws Exception {
+
+    public Main(String scriptFile) {
         super(scriptFile);
     }
 
     public static void main(String[] args) throws Exception {
         // TODO: use updated manager interface to load cars into companies
         Main main = new Main("trips");
-        main.loadCarRentalCompanies();
+        main.loadCompanies();
+        main.printAllCarTypes();
         //main.run();
-        
-        }
+    }
     
-    private void loadCarRentalCompanies() throws Exception{
-        ManagerSessionRemote managerSession = getNewManagerSession("", "");
-        List<CrcData> crcData = RentalStore.loadAllRentalData();
-        //load all the data into the car rental company
-        for(CrcData crc: crcData){
-            managerSession.addCarRentalCompany(crc.name, crc.regions, crc.cars);
+    private void loadCompanies() throws Exception{
+        List<CrcData> companyData = CompanyLoader.loadAllData("hertz.csv", "dockx.csv");
+        ManagerSessionRemote ms = getNewManagerSession(" ", " ");
+        for(CrcData data : companyData){
+            ms.addRentalCompany(data.name, data.regions, data.cars);
         }
     }
     
+    private void printAllCarTypes() throws Exception{
+        ManagerSessionRemote ms = getNewManagerSession(" ", " ");
+        Set<CarType> types = ms.getCarTypes("Hertz");
+        
+        for(CarType type : types){
+            System.out.println(type.getName());
+        }
+    }
+
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -59,8 +64,8 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected ManagerSessionRemote getNewManagerSession(String name, String carRentalName) throws Exception {
-       InitialContext context = new InitialContext();
-       return (ManagerSessionRemote) context.lookup(ManagerSessionRemote.class.getName());
+        InitialContext context = new InitialContext();
+        return (ManagerSessionRemote) context.lookup(ManagerSessionRemote.class.getName());
     }
 
     @Override
