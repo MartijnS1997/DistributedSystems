@@ -22,6 +22,7 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
         Main main = new Main("trips");
         main.loadCompanies();
         main.printAllCarTypes();
+        System.out.println(main.getNumberOfReservationsForCarType(main.getNewManagerSession(null, null), "Hertz", "Economy"));
         //main.run();
     }
     
@@ -90,6 +91,6 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected int getNumberOfReservationsForCarType(ManagerSessionRemote ms, String carRentalName, String carType) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return ms.getNumberOfReservations(carRentalName, carType);
     }
 }
