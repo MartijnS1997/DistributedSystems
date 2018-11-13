@@ -2,22 +2,19 @@ package session;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
-import javax.persistence.NamedQuery;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TemporalType;
 import rental.CarRentalCompany;
 import rental.CarType;
 import rental.Quote;
-import rental.RentalStore;
 import rental.Reservation;
 import rental.ReservationConstraints;
 import rental.ReservationException;
@@ -69,6 +66,10 @@ public class CarRentalSession implements CarRentalSessionRemote {
             }
             if (q != null) {break;}
         }
+        
+        if(q == null){
+            throw new ReservationException("No car type available for: " + constraints.toString());
+        }
         quotes.add(q);
         return q;
     }
@@ -83,6 +84,7 @@ public class CarRentalSession implements CarRentalSessionRemote {
     public List<Reservation> confirmQuotes() throws ReservationException {
         // TODO optimise by grouping quotes for a specific company together (less queries)
         List<Reservation> reservations = new ArrayList<>();
+        System.out.println(getCurrentQuotes());
         for(Quote quote : getCurrentQuotes()) {
             CarRentalCompany company = em.find(CarRentalCompany.class, quote.getRentalCompany());
             try {
@@ -91,6 +93,8 @@ public class CarRentalSession implements CarRentalSessionRemote {
                 em.persist(res); // Persist this reservation in the database
             } catch (ReservationException e) {
                 context.setRollbackOnly(); // Rollback all quotes
+                //throw the exception after the rollback... it will reach the user to signal the transaction went wrong
+                throw new ReservationException("Unable to confirm quote: " + e.toString());
             }       
         }
         return reservations;
@@ -102,5 +106,19 @@ public class CarRentalSession implements CarRentalSessionRemote {
             throw new IllegalStateException("name already set");
         }
         renter = name;
+    }
+
+    @Override
+    public CarType getCheapestCarType(Date start, Date end,String region) throws ReservationException {
+        try{
+            return (CarType) em.createNamedQuery("orderAvailableCarsByPrice")
+                    .setParameter("start", start, TemporalType.DATE)
+                    .setParameter("end", end, TemporalType.DATE)
+                    .setParameter("region", region)
+                    .setMaxResults(1) //only select one result
+                    .getSingleResult(); //get the single result
+        }catch(Exception e){
+                throw new ReservationException("No cars available for the given date");
+        }
     }
 }

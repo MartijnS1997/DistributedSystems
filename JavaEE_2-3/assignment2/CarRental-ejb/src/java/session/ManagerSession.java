@@ -12,12 +12,14 @@ import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
 import rental.RentalStore;
 import rental.Reservation;
 import rental.ReservationConstraints;
+import rental.ReservationException;
 
 @Stateless
 public class ManagerSession implements ManagerSessionRemote {
@@ -55,8 +57,8 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public int getNumberOfReservations(String company, String type) {
         CarRentalCompany rentalCompany = em.find(CarRentalCompany.class, company);
-        return em.createQuery("SELECT COUNT(r) FROM CarRentalCompany company, IN(company.cars) c, IN(c.reservations) r WHERE c.type.name = :ctype")
-                .setParameter("ctype", type).getFirstResult();
+        return ((Long)em.createQuery("SELECT COUNT(r) FROM CarRentalCompany company, IN(company.cars) c, IN(c.reservations) r WHERE c.type.name = :ctype")
+                .setParameter("ctype", type).getSingleResult()).intValue();
     }
 
 
@@ -74,25 +76,37 @@ public class ManagerSession implements ManagerSessionRemote {
     //TODO fix, is broken (multiple car renters must be returned if they have equal )
     @Override
     public Set<String> bestClients() {
-        List<String> out = em.createQuery("SELECT r.carRenter FROM Reservation r GROUP BY r.carRenter ORDER BY Count(r.reservationID) DESC").getResultList();
+        List<String> renters =em.createQuery("SELECT r.carRenter, Count(*) as c FROM Reservation r GROUP BY r.carRenter ORDER BY Count(r.reservationID) DESC").getResultList();
         Set<String> outset =new HashSet<>();
-        outset.add(out.get(0));
+        System.out.println(renters);
         return outset;
     
     }
 
-    //TODO not forgetti
     @Override
-    public CarType getMostPopular(String company, Date year) {
-        //return em.createQuery("Select cType FROM Reservation r, IN(r.car) c,  FROM ")
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public CarType getMostPopular(String companyName, int year) {
+        return (CarType) em.createQuery("SELECT cType FROM CarType cType, IN(cType.cars) c, IN(c.reservations) res WHERE "
+                + "cType.company.name = :companyName and res.startDate BETWEEN :start AND :end GROUP BY cType ORDER BY COUNT(res) ")
+                .setParameter("companyName", companyName)
+                .setParameter("start", new Date(year - 1900, 0, 1), TemporalType.DATE)
+                .setParameter("end", new Date(year - 1899, 0, 1), TemporalType.DATE)
+                .setMaxResults(1)
+                .getSingleResult();
 
     }
 
-    //TODO also keep in mind the constraints (currently not done)
     @Override
-    public CarType getCheapestCarType(ReservationConstraints constraints) {
-        return (CarType) em.createQuery("SELECT cType FROM CarType cType ORDER BY cType.rentalPricePerDay DESC").getResultList().get(0);
+    public CarType getCheapestCarType(ReservationConstraints constraints){
+        try{
+            return (CarType) em.createNamedQuery("orderAvailableCarsByPrice")
+                    .setParameter("start", constraints.getStartDate(), TemporalType.DATE)
+                    .setParameter("end", constraints.getEndDate(), TemporalType.DATE)
+                    .setParameter("region", constraints.getRegion())
+                    .setMaxResults(1) //only select one result
+                    .getSingleResult(); //get the single result
+        }catch(Exception e){
+                return null;
+        }
     }
     
     @Override

@@ -15,16 +15,29 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import static javax.persistence.FetchType.EAGER;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 // This is a query we can use in multiple sessions
- @NamedQuery (
-     name = "allCompanies",
-     query = "SELECT company.name FROM CarRentalCompany company"
+ @NamedQueries (
+    { @NamedQuery(
+        name = "allCompanies",
+        query = "SELECT company.name FROM CarRentalCompany company"
+        ),
+      @NamedQuery (
+         name = "orderAvailableCarsByPrice",
+         query = "SELECT cType FROM CarType cType, Car c WHERE cType = c.type AND :region MEMBER OF c.company.regions AND "
+                    + "NOT EXISTS (SELECT r FROM Reservation r, Car c WHERE (:start BETWEEN r.startDate AND r.endDate) AND (:end BETWEEN r.startDate AND r.endDate)) "
+                    + "ORDER BY cType.rentalPricePerDay ASC"
+        )
+            
+     }
  )
 
+ 
+ 
 @Entity
 public class CarRentalCompany {
     

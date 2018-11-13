@@ -1,12 +1,10 @@
 package session;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Remote;
 import rental.Car;
 import rental.CarType;
-import rental.Reservation;
 import rental.ReservationConstraints;
 
 @Remote
@@ -24,6 +22,12 @@ public interface ManagerSessionRemote {
      */
     public int getNumberOfReservations(String company, String type);
       
+    /**
+     * Adds a new car rental company entity in the database in the backend
+     * @param companyName the name of the company, will be used as the primary key
+     * @param regions the regions in which the car rental company will be active
+     * @param cars the cars that belong to the car rental company
+     */
     public void addRentalCompany(String companyName, List<String> regions, List<Car> cars);
     
      /**
@@ -43,7 +47,7 @@ public interface ManagerSessionRemote {
      * @param year
      * @return the car type with the most reservations
      */
-    public CarType getMostPopular(String company, Date year);
+    public CarType getMostPopular(String company, int year);
     
     /**
      * Get the cheapest car type available given the constraints

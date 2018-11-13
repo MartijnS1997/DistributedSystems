@@ -28,8 +28,7 @@ public class Car implements Serializable {
     
     /**
      * A car can only have one car type, but a car type can have many
-     * instances of cars. The relationship does not have to be
-     * bidirectional since the car only needs to access it's type
+     * instances of cars.
      */
     @ManyToOne
     private CarType type;

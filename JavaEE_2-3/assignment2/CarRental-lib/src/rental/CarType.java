@@ -1,12 +1,14 @@
 package rental;
 
 import java.io.Serializable;
+import java.util.Collection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity
 public class CarType implements Serializable {
@@ -27,6 +29,14 @@ public class CarType implements Serializable {
      */
     @ManyToOne(fetch=FetchType.LAZY)
     private CarRentalCompany company;
+    
+    /**
+     * Added for convenience during querying (requires no extra work in other cases
+     * because of lazy loading of the "ToMany" side of the relationship
+     */
+    @OneToMany(mappedBy ="type")
+    private Collection<Car> cars;
+    
     private String name;
     private int nbOfSeats;
     private boolean smokingAllowed;

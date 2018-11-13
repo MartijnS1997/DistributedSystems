@@ -39,4 +39,13 @@ public interface CarRentalSessionRemote {
     
     public List<Reservation> confirmQuotes() throws ReservationException;
     
+    /**
+     * Retrieve the cheapest car type for the given interval
+     * @param start the start date
+     * @param end the end date
+     * @param region the region in which the car will be rented
+     * @return the cheapest car type available in the given date
+     */
+    public CarType getCheapestCarType(Date start, Date end, String region) throws ReservationException;
+    
 }

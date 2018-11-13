@@ -39,6 +39,7 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
     private void printAllCarTypes() throws Exception{
         ManagerSessionRemote ms = getNewManagerSession(" ", " ");
         Set<CarType> types = ms.getCarTypes("Hertz");
+        System.out.println("All the possible car types");
         
         for(CarType type : types){
             System.out.println(type.getName());
@@ -52,12 +53,12 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected String getCheapestCarType(CarRentalSessionRemote session, Date start, Date end, String region) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return session.getCheapestCarType(start, end, region).getName();
     }
 
     @Override
-    protected CarType getMostPopularCarTypeIn(ManagerSessionRemote ms, String carRentalCompanyName, int year) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected CarType getMostPopularCarTypeIn(ManagerSessionRemote ms, String companyName, int year) throws Exception {
+       return ms.getMostPopular(companyName, year);
     }
 
     @Override
@@ -91,7 +92,10 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected List<Reservation> confirmQuotes(CarRentalSessionRemote session, String name) throws Exception {
-        return session.confirmQuotes();
+        System.out.println("Renter name: " + name);
+        List<Reservation> reservations = session.confirmQuotes();
+        System.out.println(reservations);
+        return reservations;
     }
 
     @Override
