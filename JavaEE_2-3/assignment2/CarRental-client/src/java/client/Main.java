@@ -1,6 +1,7 @@
 package client;
 
 import client.CompanyLoader.CrcData;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +25,7 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
         main.printAllCarTypes();
         System.out.println("number of reservations for Economy: " + main.getNumberOfReservationsForCarType(main.getNewManagerSession(null, null), "Hertz", "Economy"));
         System.out.println("get all rental companies: " + main.getNewManagerSession(null, null).getAllRentalCompanies());
-        //main.run();
+        main.run();
     }
     
     private void loadCompanies() throws Exception{
@@ -61,7 +62,10 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected CarRentalSessionRemote getNewReservationSession(String name) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        InitialContext context = new InitialContext();
+        CarRentalSessionRemote session = (CarRentalSessionRemote) context.lookup(CarRentalSessionRemote.class.getName());
+        session.setRenterName(name);
+        return session;
     }
 
     @Override
@@ -72,17 +76,22 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected void checkForAvailableCarTypes(CarRentalSessionRemote session, Date start, Date end) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Available car types");
+        Collection<CarType> types = session.getAvailableCarTypes(start, end);
+        for(CarType type : types){
+            System.out.println(type.getName());
+        }
     }
 
     @Override
     protected void addQuoteToSession(CarRentalSessionRemote session, String name, Date start, Date end, String carType, String region) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ReservationConstraints constraint = new ReservationConstraints(start, end, carType, region);
+        session.createQuote(constraint);
     }
 
     @Override
     protected List<Reservation> confirmQuotes(CarRentalSessionRemote session, String name) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return session.confirmQuotes();
     }
 
     @Override
