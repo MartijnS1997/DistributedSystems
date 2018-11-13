@@ -71,19 +71,35 @@ public class ManagerSession implements ManagerSessionRemote {
         return em.createNamedQuery("allCompanies").getResultList();
     }
 
+    //TODO fix, is broken (multiple car renters must be returned if they have equal )
     @Override
     public Set<String> bestClients() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<String> out = em.createQuery("SELECT r.carRenter FROM Reservation r GROUP BY r.carRenter ORDER BY Count(r.reservationID) DESC").getResultList();
+        Set<String> outset =new HashSet<>();
+        outset.add(out.get(0));
+        return outset;
+    
     }
 
+    //TODO not forgetti
     @Override
     public CarType getMostPopular(String company, Date year) {
+        //return em.createQuery("Select cType FROM Reservation r, IN(r.car) c,  FROM ")
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
+    //TODO also keep in mind the constraints (currently not done)
     @Override
     public CarType getCheapestCarType(ReservationConstraints constraints) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return (CarType) em.createQuery("SELECT cType FROM CarType cType ORDER BY cType.rentalPricePerDay DESC").getResultList().get(0);
+    }
+    
+    @Override
+    public int getNumberOfReservationsBy(String clientName) {
+       return em.createQuery("SELECT Count(r) FROM Reservation r WHERE r.carRenter = :clientName" )
+               .setParameter("clientName", clientName).getFirstResult();
+
     }
 
 }

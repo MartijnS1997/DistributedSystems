@@ -51,4 +51,6 @@ public interface ManagerSessionRemote {
      * @return the cheapest car type
      */
     public CarType getCheapestCarType(ReservationConstraints constraints);
+    
+    public int getNumberOfReservationsBy(String clientName);
 }
