@@ -15,8 +15,15 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import static javax.persistence.FetchType.EAGER;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+
+// This is a query we can use in multiple sessions
+ @NamedQuery (
+     name = "allCompanies",
+     query = "SELECT company.name FROM CarRentalCompany company"
+ )
 
 @Entity
 public class CarRentalCompany {

@@ -15,12 +15,26 @@ public interface CarRentalSessionRemote {
     
     public void setRenterName(String name);
     
-    public Set<String> getAllRentalCompanies();
+    /**
+     * 
+     * @return 
+     */
+    public List<String> getAllRentalCompanies();
     
     public List<CarType> getAvailableCarTypes(Date start, Date end);
     
-    public Quote createQuote(String company, ReservationConstraints constraints) throws ReservationException;
+    /**
+     * Iterate all companies until we find an available car
+     * @param constraints The constraints for our reservation
+     * @return the quote we made
+     * @throws ReservationException 
+     */
+    public Quote createQuote(ReservationConstraints constraints) throws ReservationException;
     
+    /**
+     * Get the quotes the client made during this session
+     * @return the list of quotes
+     */
     public List<Quote> getCurrentQuotes();
     
     public List<Reservation> confirmQuotes() throws ReservationException;

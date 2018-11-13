@@ -46,10 +46,16 @@ public class ManagerSession implements ManagerSessionRemote {
         return out;
     }
 
+    /**
+     * See page 734 in Java EE 5 tutorial for IN semantics
+     * @param company
+     * @param type
+     * @return 
+     */
     @Override
     public int getNumberOfReservations(String company, String type) {
         CarRentalCompany rentalCompany = em.find(CarRentalCompany.class, company);
-        return em.createQuery("SELECT COUNT(r) FROM company, IN(company.cars) car, IN(car.reservations) r WHERE car.type = :ctype")
+        return em.createQuery("SELECT COUNT(r) FROM CarRentalCompany company, IN(company.cars) c, IN(c.reservations) r WHERE c.type.name = :ctype")
                 .setParameter("ctype", type).getFirstResult();
     }
 
@@ -62,7 +68,7 @@ public class ManagerSession implements ManagerSessionRemote {
 
     @Override
     public List<String> getAllRentalCompanies() {
-        return em.createQuery("SELECT company.id FROM CarRentalCompany").getResultList();
+        return em.createNamedQuery("allCompanies").getResultList();
     }
 
     @Override
