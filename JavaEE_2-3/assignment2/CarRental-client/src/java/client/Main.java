@@ -23,9 +23,9 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
         Main main = new Main("trips");
         main.loadCompanies();
         main.printAllCarTypes();
-        System.out.println("number of reservations for Economy: " + main.getNumberOfReservationsForCarType(main.getNewManagerSession(null, null), "Hertz", "Economy"));
-        System.out.println("get all rental companies: " + main.getNewManagerSession(null, null).getAllRentalCompanies());
         main.run();
+        System.out.println("number of reservations for Premium: " + main.getNumberOfReservationsForCarType(main.getNewManagerSession(null, null), "Hertz", "Premium"));
+        System.out.println("get all rental companies: " + main.getNewManagerSession(null, null).getAllRentalCompanies());
     }
     
     private void loadCompanies() throws Exception{
