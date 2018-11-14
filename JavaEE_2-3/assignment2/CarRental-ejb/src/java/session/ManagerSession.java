@@ -77,7 +77,10 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public Set<String> bestClients() {
         List<String> renters =em.createQuery("SELECT r.carRenter, Count(*) as c FROM Reservation r GROUP BY r.carRenter ORDER BY Count(r.reservationID) DESC").getResultList();
-        Set<String> outset =new HashSet<>();
+        /**List<String> renters = em.createQuery("SELECT carRenter FROM Reservation GROUP BY carRenter "
+                + "HAVING COUNT(*)="
+                + "(SELECT TOP 1 COUNT(*) FROM Reservation GROUP BY carRenter ORDER BY COUNT(*) DESC)").getResultList(); */
+        Set<String> outset =new HashSet<>(renters);
         System.out.println(renters);
         return outset;
     

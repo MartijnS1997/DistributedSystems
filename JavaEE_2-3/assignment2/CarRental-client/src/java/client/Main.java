@@ -39,7 +39,7 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
     private void printAllCarTypes() throws Exception{
         ManagerSessionRemote ms = getNewManagerSession(" ", " ");
         Set<CarType> types = ms.getCarTypes("Hertz");
-        System.out.println("All the possible car types");
+        System.out.println("All the possible car types: ");
         
         for(CarType type : types){
             System.out.println(type.getName());
