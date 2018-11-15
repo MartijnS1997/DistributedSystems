@@ -12,8 +12,6 @@ public interface ManagerSessionRemote {
     
     public Set<CarType> getCarTypes(String company);
     
-    public Set<Integer> getCarIds(String company,String type);
-    
         /**
      * Get the number of reservations for a particular car type
      * @param company

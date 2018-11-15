@@ -19,6 +19,7 @@ import rental.Reservation;
 import rental.ReservationConstraints;
 import rental.ReservationException;
 
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Stateful
 public class CarRentalSession implements CarRentalSessionRemote {
     
@@ -40,21 +41,24 @@ public class CarRentalSession implements CarRentalSessionRemote {
         return renter;
     }
 
+    //no need for transaction since read only
     @Override
     public List<String> getAllRentalCompanies() {
         return em.createNamedQuery("allCompanies").getResultList();
     }
     
     //TODO Maybe optimise if we have time left
+    //no need to have transactional behavior since only queries data
     @Override
     public List<CarType> getAvailableCarTypes(Date start, Date end) {
-        List <CarType> out = new ArrayList<>();
-        for (String companyName : getAllRentalCompanies()) {
-            out.addAll(em.find(CarRentalCompany.class, companyName).getAvailableCarTypes(start, end));
-        }
-        return out;
+        return em.createQuery("SELECT DISTINCT cType FROM CarRentalCompany company, IN(company.carTypes) ctype, IN(cType.cars) c WHERE "
+                + "NOT EXISTS (SELECT res FROM IN(c.reservations) res WHERE (:start BETWEEN res.startDate AND res.endDate) OR (:end BETWEEN res.startDate AND res.endDate))")
+                .setParameter("start", start, TemporalType.DATE)
+                .setParameter("end", end, TemporalType.DATE)
+                .getResultList();
     }
-
+    
+    //No need for transaction support since read only
     @Override
     public Quote createQuote(ReservationConstraints constraints) throws ReservationException {
         Quote q = null;
@@ -74,17 +78,18 @@ public class CarRentalSession implements CarRentalSessionRemote {
         return q;
     }
 
+    //also no transactional support needed since no database is touched
     @Override
     public List<Quote> getCurrentQuotes() {
         return quotes;
     }
 
     @Override
+    //we need to start a transaction because we will update the database
+    //we require a NEW transaction since this method gets never called from another bean
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public List<Reservation> confirmQuotes() throws ReservationException {
-        // TODO optimise by grouping quotes for a specific company together (less queries)
         List<Reservation> reservations = new ArrayList<>();
-        System.out.println(getCurrentQuotes());
         for(Quote quote : getCurrentQuotes()) {
             CarRentalCompany company = em.find(CarRentalCompany.class, quote.getRentalCompany());
             try {
@@ -100,6 +105,7 @@ public class CarRentalSession implements CarRentalSessionRemote {
         return reservations;
     }
 
+    //also no need for transaction support since no data is touched
     @Override
     public void setRenterName(String name) {
         if (renter != null) {
@@ -108,13 +114,11 @@ public class CarRentalSession implements CarRentalSessionRemote {
         renter = name;
     }
 
+    //no need for transactional support since query
     @Override
     public CarType getCheapestCarType(Date start, Date end, String region) throws ReservationException {
         try{
-            System.out.println("start: " + start);
-            System.out.println("end: " + end);
-            System.out.println("region: " + region);
-            
+
             return (CarType) em.createNamedQuery("orderAvailableCarsByPrice")
                     .setParameter("start", start, TemporalType.DATE)
                     .setParameter("end", end, TemporalType.DATE)

@@ -11,7 +11,6 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import rental.Car;
 import rental.CarRentalCompany;
@@ -19,41 +18,30 @@ import rental.CarType;
 import rental.RentalStore;
 import rental.Reservation;
 import rental.ReservationConstraints;
-import rental.ReservationException;
 
+//by default do no transactional behavior
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Stateless
 public class ManagerSession implements ManagerSessionRemote {
     
     @PersistenceContext
     EntityManager em;
     
+    //no need for transaction support since we can only add companies
+    //as a whole. car types themselves cannot be added
     @Override
     public Set<CarType> getCarTypes(String companyName) {
-        CarRentalCompany company = em.find(CarRentalCompany.class, companyName);
-        Set<CarType> types = company.getAllTypes();
-        return types;
+        return new HashSet<>(em.createQuery("SELECT cType FROM CarRentalCompany company, IN(company.carTypes) cType WHERE company.name = :companyName")
+                .setParameter("companyName", companyName)
+                .getResultList());
     }
-
-    @Override
-    public Set<Integer> getCarIds(String company, String type) {
-        Set<Integer> out = new HashSet<Integer>();
-        try {
-            for(Car c: RentalStore.getRental(company).getCars(type)){
-                out.add(c.getId());
-            }
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        return out;
-    }
-
     /**
      * See page 734 in Java EE 5 tutorial for IN semantics
      * @param company
      * @param type
      * @return 
      */
+    //should require no transaction since does only ONE query, Transactions only apply if multiple queries/updates are done
     @Override
     public int getNumberOfReservations(String company, String type) {
         CarRentalCompany rentalCompany = em.find(CarRentalCompany.class, company);
@@ -63,29 +51,26 @@ public class ManagerSession implements ManagerSessionRemote {
 
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW) // Make a new transaction when adding a company
+    // Make a new transaction when adding a company, we touch multiple database objects during this operation --> may be redundant since read only
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW) 
     public void addRentalCompany(String companyName, List<String> regions, List<Car> cars) {
         em.persist(new CarRentalCompany(companyName, regions, cars));
     }
 
     @Override
+    //should not be transactional, we do a single query to the database
     public List<String> getAllRentalCompanies() {
         return em.createNamedQuery("allCompanies").getResultList();
     }
 
-    //TODO fix, is broken (multiple car renters must be returned if they have equal )
     @Override
+    //need for a transaction because we do multiple queries to the database (lazy loading)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Set<String> bestClients() {
         
         List<Reservation> reservations = em.createQuery("SELECT r FROM Reservation r ORDER BY r.carRenter").getResultList();
         
-        int best = getMostReservations(reservations);
-        System.out.println("Highest Count = " + best);
-        
-//        List<String> renters =em.createQuery("SELECT r.carRenter, Count(*) as c FROM Reservation r GROUP BY r.carRenter ORDER BY Count(r.reservationID) DESC").getResultList();
-//        /**List<String> renters = em.createQuery("SELECT carRenter FROM Reservation GROUP BY carRenter "
-//                + "HAVING COUNT(*)="
-//                + "(SELECT TOP 1 COUNT(*) FROM Reservation GROUP BY carRenter ORDER BY COUNT(*) DESC)").getResultList(); */
+        int best = getMostReservations(reservations); 
         return this.getCustomersWithReservationCount(best, reservations);
     
     }
@@ -127,7 +112,7 @@ public class ManagerSession implements ManagerSessionRemote {
         return bestResult;
     }
     
-
+    //no need for transaction since we do only one query
     @Override
     public CarType getMostPopular(String companyName, int year) {
         return (CarType) em.createQuery("SELECT cType FROM CarType cType, IN(cType.cars) c, IN(c.reservations) res WHERE "
@@ -140,6 +125,7 @@ public class ManagerSession implements ManagerSessionRemote {
 
     }
 
+    //also only one query so no transaction needed
     @Override
     public CarType getCheapestCarType(ReservationConstraints constraints){
         try{
@@ -154,6 +140,7 @@ public class ManagerSession implements ManagerSessionRemote {
         }
     }
     
+    //one query so no transaction needed
     @Override
     public int getNumberOfReservationsBy(String clientName) {
        return em.createQuery("SELECT Count(r) FROM Reservation r WHERE r.carRenter = :clientName" )
