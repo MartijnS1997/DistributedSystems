@@ -76,20 +76,62 @@ public class ManagerSession implements ManagerSessionRemote {
     //TODO fix, is broken (multiple car renters must be returned if they have equal )
     @Override
     public Set<String> bestClients() {
-        List<String> renters =em.createQuery("SELECT r.carRenter, Count(*) as c FROM Reservation r GROUP BY r.carRenter ORDER BY Count(r.reservationID) DESC").getResultList();
-        /**List<String> renters = em.createQuery("SELECT carRenter FROM Reservation GROUP BY carRenter "
-                + "HAVING COUNT(*)="
-                + "(SELECT TOP 1 COUNT(*) FROM Reservation GROUP BY carRenter ORDER BY COUNT(*) DESC)").getResultList(); */
-        Set<String> outset =new HashSet<>(renters);
-        System.out.println(renters);
-        return outset;
+        
+        List<Reservation> reservations = em.createQuery("SELECT r FROM Reservation r ORDER BY r.carRenter").getResultList();
+        
+        int best = getMostReservations(reservations);
+        System.out.println("Highest Count = " + best);
+        
+//        List<String> renters =em.createQuery("SELECT r.carRenter, Count(*) as c FROM Reservation r GROUP BY r.carRenter ORDER BY Count(r.reservationID) DESC").getResultList();
+//        /**List<String> renters = em.createQuery("SELECT carRenter FROM Reservation GROUP BY carRenter "
+//                + "HAVING COUNT(*)="
+//                + "(SELECT TOP 1 COUNT(*) FROM Reservation GROUP BY carRenter ORDER BY COUNT(*) DESC)").getResultList(); */
+        return this.getCustomersWithReservationCount(best, reservations);
     
     }
+    
+   
+    private Set<String> getCustomersWithReservationCount(int reservationCount, List<Reservation> reservations){
+        Set<String> customers = new HashSet<>();
+        String currentCustomer = "";
+        int currentCount = -1; // all the reservations will be larger than -1
+        for(Reservation reservation : reservations){
+            System.out.println("Current Renter: " + reservation.getCarRenter());
+            //we're swapping customers, check now for the equality
+            if(!reservation.getCarRenter().equals(currentCustomer)){
+                if(currentCount == reservationCount){
+                    customers.add(currentCustomer);
+                }
+                
+                currentCount = 0;
+            }
+            
+            currentCustomer = reservation.getCarRenter();
+            currentCount++;
+        }
+        
+        return customers;
+    }
+
+    private int getMostReservations(List<Reservation> reservations) {
+        int bestResult = 0;
+        int current = 0;
+        String prevCust = "";
+        for(Reservation reservation : reservations){
+            // we may do this because the result is ordered alphabetically
+            current = prevCust.equals(reservation.getCarRenter()) ? current + 1 : 1;
+            bestResult = bestResult < current ? current : bestResult;
+            prevCust = reservation.getCarRenter();
+        }
+        
+        return bestResult;
+    }
+    
 
     @Override
     public CarType getMostPopular(String companyName, int year) {
         return (CarType) em.createQuery("SELECT cType FROM CarType cType, IN(cType.cars) c, IN(c.reservations) res WHERE "
-                + "cType.company.name = :companyName and res.startDate BETWEEN :start AND :end GROUP BY cType ORDER BY COUNT(res) ")
+                + "cType.company.name = :companyName and res.startDate BETWEEN :start AND :end GROUP BY cType ORDER BY COUNT(res) DESC ")
                 .setParameter("companyName", companyName)
                 .setParameter("start", new Date(year - 1900, 0, 1), TemporalType.DATE)
                 .setParameter("end", new Date(year - 1899, 0, 1), TemporalType.DATE)

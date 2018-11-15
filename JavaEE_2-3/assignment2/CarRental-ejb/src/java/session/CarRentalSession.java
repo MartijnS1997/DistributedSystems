@@ -109,8 +109,12 @@ public class CarRentalSession implements CarRentalSessionRemote {
     }
 
     @Override
-    public CarType getCheapestCarType(Date start, Date end,String region) throws ReservationException {
+    public CarType getCheapestCarType(Date start, Date end, String region) throws ReservationException {
         try{
+            System.out.println("start: " + start);
+            System.out.println("end: " + end);
+            System.out.println("region: " + region);
+            
             return (CarType) em.createNamedQuery("orderAvailableCarsByPrice")
                     .setParameter("start", start, TemporalType.DATE)
                     .setParameter("end", end, TemporalType.DATE)
@@ -118,6 +122,7 @@ public class CarRentalSession implements CarRentalSessionRemote {
                     .setMaxResults(1) //only select one result
                     .getSingleResult(); //get the single result
         }catch(Exception e){
+                e.printStackTrace();
                 throw new ReservationException("No cars available for the given date");
         }
     }

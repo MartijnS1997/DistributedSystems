@@ -48,6 +48,7 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
+        System.out.println(ms.bestClients());
         return ms.bestClients();
     }
 
