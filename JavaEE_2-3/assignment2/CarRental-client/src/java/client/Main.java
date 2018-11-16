@@ -19,13 +19,10 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
     }
 
     public static void main(String[] args) throws Exception {
-        // TODO: use updated manager interface to load cars into companies
         Main main = new Main("trips");
         main.loadCompanies();
         main.printAllCarTypes();
         main.run();
-        System.out.println("number of reservations for Premium: " + main.getNumberOfReservationsForCarType(main.getNewManagerSession(null, null), "Hertz", "Premium"));
-        System.out.println("get all rental companies: " + main.getNewManagerSession(null, null).getAllRentalCompanies());
     }
     
     private void loadCompanies() throws Exception{
@@ -48,7 +45,7 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
 
     @Override
     protected Set<String> getBestClients(ManagerSessionRemote ms) throws Exception {
-        System.out.println(ms.bestClients());
+        System.out.println("Best clients: " + ms.bestClients());
         return ms.bestClients();
     }
 
@@ -95,7 +92,7 @@ public class Main extends AbstractTestManagement<CarRentalSessionRemote, Manager
     protected List<Reservation> confirmQuotes(CarRentalSessionRemote session, String name) throws Exception {
         System.out.println("Renter name: " + name);
         List<Reservation> reservations = session.confirmQuotes();
-        System.out.println(reservations);
+        System.out.println(reservations + " confirmed!");
         return reservations;
     }
 

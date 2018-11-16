@@ -1,7 +1,6 @@
 package rental;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,7 +9,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.CascadeType.PERSIST;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import static javax.persistence.FetchType.EAGER;
@@ -20,7 +18,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-// This is a query we can use in multiple sessions
+// These are queries we can use in multiple sessions
  @NamedQueries (
     { @NamedQuery(
         name = "allCompanies",
@@ -71,10 +69,10 @@ public class CarRentalCompany {
      *        are not used (may be replaced later with a fetch join)
      */
     @OneToMany(fetch=EAGER, cascade=ALL, mappedBy = "company")
-    private Set<CarType> carTypes = new HashSet<CarType>();
+    private Set<CarType> carTypes = new HashSet<>();
     
     @ElementCollection
-    private List<String> regions = new ArrayList<String>();
+    private List<String> regions = new ArrayList<>();
 
 	
     /***************
@@ -144,7 +142,7 @@ public class CarRentalCompany {
     }
 
     public Set<CarType> getAvailableCarTypes(Date start, Date end) {
-        Set<CarType> availableCarTypes = new HashSet<CarType>();
+        Set<CarType> availableCarTypes = new HashSet<>();
         for (Car car : cars) {
             if (car.isAvailable(start, end)) {
                 availableCarTypes.add(car.getType());
@@ -167,7 +165,7 @@ public class CarRentalCompany {
     }
 
     public Set<Car> getCars(CarType type) {
-        Set<Car> out = new HashSet<Car>();
+        Set<Car> out = new HashSet<>();
         for (Car car : cars) {
             if (car.getType().equals(type)) {
                 out.add(car);
@@ -177,7 +175,7 @@ public class CarRentalCompany {
     }
     
      public Set<Car> getCars(String type) {
-        Set<Car> out = new HashSet<Car>();
+        Set<Car> out = new HashSet<>();
         for (Car car : cars) {
             if (type.equals(car.getType().getName())) {
                 out.add(car);
@@ -187,7 +185,7 @@ public class CarRentalCompany {
     }
 
     private List<Car> getAvailableCars(String carType, Date start, Date end) {
-        List<Car> availableCars = new LinkedList<Car>();
+        List<Car> availableCars = new LinkedList<>();
         for (Car car : cars) {
             if (car.getType().getName().equals(carType) && car.isAvailable(start, end)) {
                 availableCars.add(car);

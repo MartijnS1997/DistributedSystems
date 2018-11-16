@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -15,7 +13,6 @@ import javax.persistence.TemporalType;
 import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
-import rental.RentalStore;
 import rental.Reservation;
 import rental.ReservationConstraints;
 

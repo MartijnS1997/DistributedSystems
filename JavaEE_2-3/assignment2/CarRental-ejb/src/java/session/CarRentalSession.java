@@ -47,7 +47,6 @@ public class CarRentalSession implements CarRentalSessionRemote {
         return em.createNamedQuery("allCompanies").getResultList();
     }
     
-    //TODO Maybe optimise if we have time left
     //no need to have transactional behavior since only queries data
     @Override
     public List<CarType> getAvailableCarTypes(Date start, Date end) {
@@ -64,11 +63,11 @@ public class CarRentalSession implements CarRentalSessionRemote {
         Quote q = null;
         for (String companyName : getAllRentalCompanies()) {
             try {
-                q = em.find(CarRentalCompany.class,companyName).createQuote(constraints, getRenter());
-            } catch (Exception e) {
+                q = em.find(CarRentalCompany.class,companyName).createQuote(constraints, getRenter()); // try to create a quote
+            } catch (Exception e) { // if not possible
                 // Continue searching for available cars
             }
-            if (q != null) {break;}
+            if (q != null) {break;} // creating quote succeeded
         }
         
         if(q == null){
